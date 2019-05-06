@@ -2,6 +2,9 @@
 
 This program takes on the libp2p daemon with gossipsub to create a simple application to send messages to all other peers.
 
+## packages
+The packages will require golang version 1.11+. The application will not be able to compile with a older version.
+
 # License
 
 Copyright 2019 Antoine Toulme
