@@ -4,112 +4,146 @@ import (
 	"io"
 	"os"
 	"fmt"
+	"log"
 	"sync"
-	"context"
-	"runtime"
+	"flag"
+	"strings"
+	// "context"
 	"os/signal"
-	"io/ioutil"
-	"path/filepath"
-	p2pd "github.com/libp2p/go-libp2p-daemon"
+	"crypto/rand"
+	mrand "math/rand"
+	libp2p "github.com/libp2p/go-libp2p"
 	ma "github.com/multiformats/go-multiaddr"
+	crypto "github.com/libp2p/go-libp2p-crypto"
+	relay "github.com/libp2p/go-libp2p-circuit"
+	connmgr "github.com/libp2p/go-libp2p-connmgr"
 	c "github.com/libp2p/go-libp2p-daemon/p2pclient"
+	identify "github.com/libp2p/go-libp2p/p2p/protocol/identify"
 )
 
-type makeEndpoints func() (daemon, client ma.Multiaddr, cleanup func(), err error)
-
-func createTempDir() (string, string, func(), error) {
-	root := os.TempDir()
-	dir, err := ioutil.TempDir(root, "p2pd")
-	if err != nil {
-		return "", "", nil, err
-	}
-	daemonPath := filepath.Join(dir, "daemon.sock")
-	clientPath := filepath.Join(dir, "client.sock")
-	closer := func() {
-		os.RemoveAll(dir)
-	}
-	return daemonPath, clientPath, closer, nil
-}
-
-func makeTcpLocalhostEndpoints() (daemon, client ma.Multiaddr, cleanup func(), err error) {
-	daemon, err = ma.NewMultiaddr("/ip4/127.0.0.1/tcp/0")
-	if err != nil {
-		return nil, nil, nil, err
-	}
-	client, err = ma.NewMultiaddr("/ip4/127.0.0.1/tcp/0")
-	if err != nil {
-		return nil, nil, nil, err
-	}
-	cleanup = func() {}
-	return daemon, client, cleanup, nil
-}
-
-func makeUnixEndpoints() (daemon, client ma.Multiaddr, cleanup func(), err error) {
-	daemonPath, clientPath, cleanup, err := createTempDir()
-	if err != nil {
-		return nil, nil, nil, err
-	}
-	daemon, _ = ma.NewComponent("unix", daemonPath)
-	client, _ = ma.NewComponent("unix", clientPath)
-	return
-}
-
-func getEndpointsMaker() makeEndpoints {
-	if runtime.GOOS == "windows" {
-		return makeTcpLocalhostEndpoints
-	} else {
-		return makeUnixEndpoints
-	}
-}
-
-func createDaemon(daemonAddr ma.Multiaddr) (*p2pd.Daemon, func(), error) {
-	ctx, cancelCtx := context.WithCancel(context.Background())
-	daemon, err := p2pd.NewDaemon(ctx, daemonAddr, "")
-	if err != nil {
-		return nil, nil, err
-	}
-	err = daemon.EnablePubsub("gossipsub", false, false)
-	if err != nil {
-		return nil, nil, err
-	}
-	return daemon, cancelCtx, nil
-}
-
-func createClient(daemonAddr ma.Multiaddr, clientAddr ma.Multiaddr) (*c.Client, func(), error) {
-	client, err := c.NewClient(daemonAddr, clientAddr)
-	if err != nil {
-		return nil, nil, err
-	}
-	closer := func() {
-		client.Close()
-	}
-	return client, closer, nil
-}
-
-func createDaemonClientPair() (*p2pd.Daemon, *c.Client, func(), error) {
-	dmaddr, cmaddr, dirCloser, err := getEndpointsMaker()()
-	daemon, closeDaemon, err := createDaemon(dmaddr)
-	if err != nil {
-		return nil, nil, nil, err
-	}
-	client, closeClient, err := createClient(daemon.Listener().Multiaddr(), cmaddr)
-	if err != nil {
-		return nil, nil, nil, err
-	}
-
-	closer := func() {
-		closeDaemon()
-		closeClient()
-		dirCloser()
-	}
-	return daemon, client, closer, nil
-}
-
 func main() {
-	_, c1, closer, err := createDaemonClientPair()
+
+	identify.ClientVersion = "p2pd/0.1"
+
+	seed := flag.Int64("seed", 0, "seed to generate privKey")
+	id := flag.String("id", "", "peer identity; private key file")
+	connMgr := flag.Bool("connManager", false, "Enables the Connection Manager")
+	connMgrLo := flag.Int("connLo", 256, "Connection Manager Low Water mark")
+	connMgrHi := flag.Int("connHi", 512, "Connection Manager High Water mark")
+	connMgrGrace := flag.Duration("connGrace", 120, "Connection Manager grace period (in seconds)")
+	natPortMap := flag.Bool("natPortMap", false, "Enables NAT port mapping")
+	// pubsub := flag.Bool("pubsub", false, "Enables pubsub")
+	// pubsubRouter := flag.String("pubsubRouter", "gossipsub", "Specifies the pubsub router implementation")
+	// pubsubSign := flag.Bool("pubsubSign", true, "Enables pubsub message signing")
+	// pubsubSignStrict := flag.Bool("pubsubSignStrict", false, "Enables pubsub strict signature verification")
+	// gossipsubHeartbeatInterval := flag.Duration("gossipsubHeartbeatInterval", 0, "Specifies the gossipsub heartbeat interval")
+	// gossipsubHeartbeatInitialDelay := flag.Duration("gossipsubHeartbeatInitialDelay", 0, "Specifies the gossipsub initial heartbeat delay")
+	relayEnabled := flag.Bool("relay", true, "Enables circuit relay")
+	relayActive := flag.Bool("relayActive", false, "Enables active mode for relay")
+	relayHop := flag.Bool("relayHop", false, "Enables hop for relay")
+	hostAddrs := flag.String("hostAddrs", "", "comma separated list of multiaddrs the host should listen on")
+	announceAddrs := flag.String("announceAddrs", "", "comma separated list of multiaddrs the host should announce to the network")
+	noListen := flag.Bool("noListenAddrs", false, "sets the host to listen on no addresses")
+
+	flag.Parse()
+
+	var opts []libp2p.Option
+	// var staticPeers []ma.Multiaddr
+
+	if *id != "" {
+		var r io.Reader
+		if *seed == int64(0) {
+			r = rand.Reader
+		} else {
+			r = mrand.New(mrand.NewSource(*seed))
+		}
+		priv, _, err := crypto.GenerateEd25519Key(r)
+		if err != nil {
+			panic(err)
+		}
+
+		opts = append(opts, libp2p.Identity(priv))
+	}
+
+	if *hostAddrs != "" {
+		addrs := strings.Split(*hostAddrs, ",")
+		opts = append(opts, libp2p.ListenAddrStrings(addrs...))
+	}
+
+	if *announceAddrs != "" {
+		addrs := strings.Split(*announceAddrs, ",")
+		maddrs := make([]ma.Multiaddr, 0, len(addrs))
+		for _, a := range addrs {
+			maddr, err := ma.NewMultiaddr(a)
+			if err != nil {
+				log.Fatal(err)
+			}
+			maddrs = append(maddrs, maddr)
+		}
+		opts = append(opts, libp2p.AddrsFactory(func([]ma.Multiaddr) []ma.Multiaddr {
+			return maddrs
+		}))
+	}
+
+	if *connMgr {
+		cm := connmgr.NewConnManager(*connMgrLo, *connMgrHi, *connMgrGrace)
+		opts = append(opts, libp2p.ConnectionManager(cm))
+	}
+
+	if *natPortMap {
+		opts = append(opts, libp2p.NATPortMap())
+	}
+
+	if *relayEnabled {
+		var relayOpts []relay.RelayOpt
+		if *relayActive {
+			relayOpts = append(relayOpts, relay.OptActive)
+		}
+		if *relayHop {
+			relayOpts = append(relayOpts, relay.OptHop)
+		}
+		// if *relayDiscovery {
+		// 	relayOpts = append(relayOpts, relay.OptDiscovery)
+		// }
+		opts = append(opts, libp2p.EnableRelay(relayOpts...))
+	}
+
+	if *noListen {
+		opts = append(opts, libp2p.NoListenAddrs)
+	}
+
+	fmt.Println("******Daemon Configuration******")
+	fmt.Println("seed: ",*seed)
+	fmt.Println("id: ", *id)
+	fmt.Println("connection manager: ", *connMgr)
+	fmt.Println("connmgrLo: ",*connMgrLo)
+	fmt.Println("connmgrHi: ",*connMgrHi)
+	fmt.Println("connMgrGrace: ", *connMgrGrace)
+	fmt.Println("natPortMap: ", *natPortMap)
+	// fmt.Println(*pubsub)
+	// fmt.Println(*pubsubRouter)
+	// fmt.Println(*pubsubSign)
+	// fmt.Println(*pubsubSignStrict)
+	// fmt.Println(*gossipsubHeartbeatInterval)
+	// fmt.Println(*gossipsubHeartbeatInitialDelay)
+	fmt.Println("relayEnabled: ", *relayEnabled)
+	fmt.Println("relayActive: ", *relayActive)
+	fmt.Println("relayHop: ", *relayHop)
+	fmt.Println("hostAddrs: ", *hostAddrs)
+	fmt.Println("announceAddrs: ", *announceAddrs)
+	fmt.Println("noListen: ", *noListen)
+	fmt.Println("********************************")
+
+	// gets the options to pass to the deamon
+
+	d1, c1, closer, err := createDaemonClientPair(opts)
 	if err != nil {
 		panic(err)
 	}
+
+	fmt.Println(fmt.Printf("%#v",*d1))
+	fmt.Println(fmt.Printf("%#v",*c1))
+
 	defer closer()
 
 	testprotos := []string{"/test"}
