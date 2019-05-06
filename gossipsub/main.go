@@ -1,18 +1,18 @@
 package main
 
 import (
-	"context"
-	"fmt"
-	"github.com/libp2p/go-libp2p-daemon"
-	"github.com/libp2p/go-libp2p-daemon/p2pclient"
-	ma "github.com/multiformats/go-multiaddr"
 	"io"
-	"io/ioutil"
 	"os"
-	"os/signal"
-	"path/filepath"
-	"runtime"
+	"fmt"
 	"sync"
+	"context"
+	"runtime"
+	"os/signal"
+	"io/ioutil"
+	"path/filepath"
+	p2pd "github.com/libp2p/go-libp2p-daemon"
+	ma "github.com/multiformats/go-multiaddr"
+	c "github.com/libp2p/go-libp2p-daemon/p2pclient"
 )
 
 type makeEndpoints func() (daemon, client ma.Multiaddr, cleanup func(), err error)
@@ -75,8 +75,8 @@ func createDaemon(daemonAddr ma.Multiaddr) (*p2pd.Daemon, func(), error) {
 	return daemon, cancelCtx, nil
 }
 
-func createClient(daemonAddr ma.Multiaddr, clientAddr ma.Multiaddr) (*p2pclient.Client, func(), error) {
-	client, err := p2pclient.NewClient(daemonAddr, clientAddr)
+func createClient(daemonAddr ma.Multiaddr, clientAddr ma.Multiaddr) (*c.Client, func(), error) {
+	client, err := c.NewClient(daemonAddr, clientAddr)
 	if err != nil {
 		return nil, nil, err
 	}
@@ -86,7 +86,7 @@ func createClient(daemonAddr ma.Multiaddr, clientAddr ma.Multiaddr) (*p2pclient.
 	return client, closer, nil
 }
 
-func createDaemonClientPair() (*p2pd.Daemon, *p2pclient.Client, func(), error) {
+func createDaemonClientPair() (*p2pd.Daemon, *c.Client, func(), error) {
 	dmaddr, cmaddr, dirCloser, err := getEndpointsMaker()()
 	daemon, closeDaemon, err := createDaemon(dmaddr)
 	if err != nil {
@@ -114,7 +114,7 @@ func main() {
 
 	testprotos := []string{"/test"}
 
-	err = c1.NewStreamHandler(testprotos, func(info *p2pclient.StreamInfo, conn io.ReadWriteCloser) {
+	err = c1.NewStreamHandler(testprotos, func(info *c.StreamInfo, conn io.ReadWriteCloser) {
 		defer conn.Close()
 		buf := make([]byte, 1024)
 		n, err := conn.Read(buf)
