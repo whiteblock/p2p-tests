@@ -7,6 +7,7 @@ import (
 	"flag"
 	"strings"
 	"crypto/rand"
+	logr "github.com/sirupsen/logrus"
 	libp2p "github.com/libp2p/go-libp2p"
 	ma "github.com/multiformats/go-multiaddr"
 	crypto "github.com/libp2p/go-libp2p-crypto"
@@ -19,7 +20,6 @@ import (
 func main() {
 
 	identify.ClientVersion = "p2pd/0.1"
-
 	id := flag.String("id", "", "peer identity; private key file")
 	connMgr := flag.Bool("connManager", false, "Enables the Connection Manager")
 	connMgrLo := flag.Int("connLo", 256, "Connection Manager Low Water mark")
@@ -97,27 +97,21 @@ func main() {
 		opts = append(opts, libp2p.NoListenAddrs)
 	}
 
-	fmt.Println("******Daemon Configuration******")
-	fmt.Println("id: ", *id)
-	fmt.Println("connection manager: ", *connMgr)
-	fmt.Println("connmgrLo: ",*connMgrLo)
-	fmt.Println("connmgrHi: ",*connMgrHi)
-	fmt.Println("connMgrGrace: ", *connMgrGrace)
-	fmt.Println("natPortMap: ", *natPortMap)
-	fmt.Println("pubsubRouter: ", *pubsubRouter)
-	fmt.Println("pubsubSign: ", *pubsubSign)
-	fmt.Println("pubsubSignStrict: ", *pubsubSignStrict)
-	fmt.Println("gossipsubHeartbeatInterval: ", *gossipsubHeartbeatInterval)
-	fmt.Println("gossipsubHeartbeatInitialDelay: ", *gossipsubHeartbeatInitialDelay)
-	fmt.Println("relayEnabled: ", *relayEnabled)
-	fmt.Println("relayActive: ", *relayActive)
-	fmt.Println("relayHop: ", *relayHop)
-	fmt.Println("hostAddrs: ", *hostAddrs)
-	fmt.Println("announceAddrs: ", *announceAddrs)
-	fmt.Println("noListen: ", *noListen)
-	fmt.Println("********************************")
+	// Logrus provides JSON logs.
+	logr.SetFormatter(&logr.JSONFormatter{})
+	logr.WithFields(logr.Fields{
+		"id":                             *id,
+		"pubsubRouter":                   *pubsubRouter,
+		"gossipsubHeartbeatInterval":     *gossipsubHeartbeatInterval,
+		"gossipsubHeartbeatInitialDelay": *gossipsubHeartbeatInitialDelay,
+		"relayEnabled":                   *relayEnabled,
+		"relayActive":                    *relayActive,
+		"relayHop":                       *relayHop,
+		"hostAddrs":                      *hostAddrs,
+		"announceAddrs":                  *announceAddrs,
+	}).Fatal("something bad happened")
 
-	// gets the options to pass to the deamon
+	// gets the options to pass to the daemon
 
 	_, c1, closer, err := createDaemonClientPair(opts, *pubsubRouter, *pubsubSign, *pubsubSignStrict, *gossipsubHeartbeatInterval, *gossipsubHeartbeatInitialDelay)
 	if err != nil {
@@ -126,29 +120,24 @@ func main() {
 
 	defer closer()
 
-	testprotos := []string{"/test"}
+	testProtos := []string{"/test"}
 
-	err = c1.NewStreamHandler(testprotos, func(info *c.StreamInfo, conn io.ReadWriteCloser) {
+	err = c1.NewStreamHandler(testProtos, func(info *c.StreamInfo, conn io.ReadWriteCloser) {
 		defer conn.Close()
 		buf := make([]byte, 1024)
-		n, err := conn.Read(buf)
+		_, err := conn.Read(buf)
 		if err != nil {
 			panic(err)
 		}
-
-		// TODO print to JSON file.
-		fmt.Printf("%s\n", buf[0:n])
 	})
 
 	if err != nil {
 		panic(err)
 	}
 
-	// TODO open a RPC port to publish messages
 
 	fmt.Printf("Daemon started")
 	
 	chanwait()
 
-	
 }
