@@ -1,15 +1,16 @@
 # ETH2.0 P2P Tests
 
-## Testing Methodology
-
-This work started last year with [Eth Research](https://github.com/ethresearch/sharding-p2p-poc).
-
-Within the following test series, we will be testing libp2p's go implementation of [gossipsub](https://github.com/libp2p/go-libp2p-pubsub/blob/master/gossipsub.go).
-
 ## Overview
-The network is segmented into X number of shards. Every ~10 minutes, validators are randomly assigned to a shard, so the stress point is observing and testing the ability of validators to subscribe to new topics and send/receive messages pertaining to this new topic in an adequate amount of time.
+The focal point of the following tests is to analyze the performance of various messaging patterns, including 
+the Libp2p implementation of gossipsub and floodsub, as well as Artemis' current implementation of the Plumtree algorithm.
 
-Please reference [this document](https://notes.ethereum.org/s/ByYhlJBs7) for further details pertaining to the test plan.
+## Test Methodology
+
+This work started in early 2018 in collaboration with the [Eth Research team](https://github.com/ethresearch/sharding-p2p-poc).
+
+Please reference [this document](https://notes.ethereum.org/s/ByYhlJBs7) for further details pertaining to this initial test plan.
+
+This document is a work in progress and will be updated accordingly as we progress with these initiatives. 
 
 ## Test Utility
 
@@ -24,8 +25,7 @@ Please reference [this document](https://notes.ethereum.org/s/ByYhlJBs7) for fur
   * Latency between nodes:
     * What is the maximum amount of network latency each individual node can tolerate before performance begins to degrade?
     * What are the security implications of high degrees of latency?
-    * Are there any other unforeseen issues which may arise from network conditions for which we can’t accommodate via traditional code?
-  * Latency between shards.
+    * Are there any other unforeseen issues which may arise from network conditions for which we can’t immediately accommodate?
   * Intermittent blackout conditions
   * High degrees of packet loss
   * Bandwidth constraints (various bandwidth sizes)
@@ -35,12 +35,8 @@ Please reference [this document](https://notes.ethereum.org/s/ByYhlJBs7) for fur
   * Introduce a high volume of nodes simultaneously.
 * Partition tolerance
   * Prevent segments of nodes from communicating with one another.
-* Measure the performance of sending/receiving messages within set time periods and repeat for N epoches.
-* Observe process of nodes joining and leaving shards
-  * Subscribing to shards
-  * Connecting to other nodes within shard
-  * Synchronize collations and ShardPreferenceTable
-  * Unsubscribing from shards
+* Measure the performance of sending/receiving messages within set time periods and repeat for N epochs.
+* Observe the process of introducing and removing nodes from the network.
 
 ## Need to Define
 
