@@ -11,7 +11,6 @@ import (
 	// "context"
 	"os/signal"
 	"crypto/rand"
-	mrand "math/rand"
 	libp2p "github.com/libp2p/go-libp2p"
 	ma "github.com/multiformats/go-multiaddr"
 	crypto "github.com/libp2p/go-libp2p-crypto"
@@ -25,19 +24,17 @@ func main() {
 
 	identify.ClientVersion = "p2pd/0.1"
 
-	seed := flag.Int64("seed", 0, "seed to generate privKey")
 	id := flag.String("id", "", "peer identity; private key file")
 	connMgr := flag.Bool("connManager", false, "Enables the Connection Manager")
 	connMgrLo := flag.Int("connLo", 256, "Connection Manager Low Water mark")
 	connMgrHi := flag.Int("connHi", 512, "Connection Manager High Water mark")
 	connMgrGrace := flag.Duration("connGrace", 120, "Connection Manager grace period (in seconds)")
 	natPortMap := flag.Bool("natPortMap", false, "Enables NAT port mapping")
-	// pubsub := flag.Bool("pubsub", false, "Enables pubsub")
-	// pubsubRouter := flag.String("pubsubRouter", "gossipsub", "Specifies the pubsub router implementation")
-	// pubsubSign := flag.Bool("pubsubSign", true, "Enables pubsub message signing")
-	// pubsubSignStrict := flag.Bool("pubsubSignStrict", false, "Enables pubsub strict signature verification")
-	// gossipsubHeartbeatInterval := flag.Duration("gossipsubHeartbeatInterval", 0, "Specifies the gossipsub heartbeat interval")
-	// gossipsubHeartbeatInitialDelay := flag.Duration("gossipsubHeartbeatInitialDelay", 0, "Specifies the gossipsub initial heartbeat delay")
+	pubsubRouter := flag.String("pubsubRouter", "gossipsub", "Specifies the pubsub router implementation")
+	pubsubSign := flag.Bool("pubsubSign", false, "Enables pubsub message signing")
+	pubsubSignStrict := flag.Bool("pubsubSignStrict", false, "Enables pubsub strict signature verification")
+	gossipsubHeartbeatInterval := flag.Duration("gossipsubHeartbeatInterval", 0, "Specifies the gossipsub heartbeat interval")
+	gossipsubHeartbeatInitialDelay := flag.Duration("gossipsubHeartbeatInitialDelay", 0, "Specifies the gossipsub initial heartbeat delay")
 	relayEnabled := flag.Bool("relay", true, "Enables circuit relay")
 	relayActive := flag.Bool("relayActive", false, "Enables active mode for relay")
 	relayHop := flag.Bool("relayHop", false, "Enables hop for relay")
@@ -52,16 +49,11 @@ func main() {
 
 	if *id != "" {
 		var r io.Reader
-		if *seed == int64(0) {
-			r = rand.Reader
-		} else {
-			r = mrand.New(mrand.NewSource(*seed))
-		}
+		r = rand.Reader
 		priv, _, err := crypto.GenerateEd25519Key(r)
 		if err != nil {
 			panic(err)
 		}
-
 		opts = append(opts, libp2p.Identity(priv))
 	}
 
@@ -112,20 +104,21 @@ func main() {
 		opts = append(opts, libp2p.NoListenAddrs)
 	}
 
+	// heartbeatInterval := int(*gossipsubHeartbeatInterval)
+	// heartbeatInitialDelay := int(*gossipsubHeartbeatInitialDelay)
+
 	fmt.Println("******Daemon Configuration******")
-	fmt.Println("seed: ",*seed)
 	fmt.Println("id: ", *id)
 	fmt.Println("connection manager: ", *connMgr)
 	fmt.Println("connmgrLo: ",*connMgrLo)
 	fmt.Println("connmgrHi: ",*connMgrHi)
 	fmt.Println("connMgrGrace: ", *connMgrGrace)
 	fmt.Println("natPortMap: ", *natPortMap)
-	// fmt.Println(*pubsub)
-	// fmt.Println(*pubsubRouter)
-	// fmt.Println(*pubsubSign)
-	// fmt.Println(*pubsubSignStrict)
-	// fmt.Println(*gossipsubHeartbeatInterval)
-	// fmt.Println(*gossipsubHeartbeatInitialDelay)
+	fmt.Println("pubsubRouter: ", *pubsubRouter)
+	fmt.Println("pubsubSign: ", *pubsubSign)
+	fmt.Println("pubsubSignStrict: ", *pubsubSignStrict)
+	fmt.Println("gossipsubHeartbeatInterval: ", *gossipsubHeartbeatInterval)
+	fmt.Println("gossipsubHeartbeatInitialDelay: ", *gossipsubHeartbeatInitialDelay)
 	fmt.Println("relayEnabled: ", *relayEnabled)
 	fmt.Println("relayActive: ", *relayActive)
 	fmt.Println("relayHop: ", *relayHop)
@@ -136,7 +129,7 @@ func main() {
 
 	// gets the options to pass to the deamon
 
-	d1, c1, closer, err := createDaemonClientPair(opts)
+	d1, c1, closer, err := createDaemonClientPair(opts, *pubsubRouter, *pubsubSign, *pubsubSignStrict, *gossipsubHeartbeatInterval, *gossipsubHeartbeatInitialDelay)
 	if err != nil {
 		panic(err)
 	}
