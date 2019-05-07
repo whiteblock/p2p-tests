@@ -6,6 +6,7 @@ import (
 	"log"
 	"flag"
 	"strings"
+	"net/rpc"
 	"crypto/rand"
 	logr "github.com/sirupsen/logrus"
 	libp2p "github.com/libp2p/go-libp2p"
@@ -17,8 +18,11 @@ import (
 	identify "github.com/libp2p/go-libp2p/p2p/protocol/identify"
 )
 
-func main() {
+func init() {
+	
+}
 
+func main() {
 	identify.ClientVersion = "p2pd/0.1"
 	id := flag.String("id", "", "peer identity; private key file")
 	connMgr := flag.Bool("connManager", false, "Enables the Connection Manager")
@@ -37,11 +41,9 @@ func main() {
 	hostAddrs := flag.String("hostAddrs", "", "comma separated list of multiaddrs the host should listen on")
 	announceAddrs := flag.String("announceAddrs", "", "comma separated list of multiaddrs the host should announce to the network")
 	noListen := flag.Bool("noListenAddrs", false, "sets the host to listen on no addresses")
-
 	flag.Parse()
 
 	var opts []libp2p.Option
-	// var staticPeers []ma.Multiaddr
 
 	if *id != "" {
 		var r io.Reader
@@ -99,7 +101,7 @@ func main() {
 
 	// Logrus provides JSON logs.
 	logr.SetFormatter(&logr.JSONFormatter{})
-	logr.WithFields(logr.Fields{
+	data := logr.Fields{
 		"id":                             *id,
 		"pubsubRouter":                   *pubsubRouter,
 		"gossipsubHeartbeatInterval":     *gossipsubHeartbeatInterval,
@@ -109,14 +111,29 @@ func main() {
 		"relayHop":                       *relayHop,
 		"hostAddrs":                      *hostAddrs,
 		"announceAddrs":                  *announceAddrs,
-	}).Fatal("something bad happened")
+	}
+	fmt.Println(fmt.Printf("%#v",logr.WithFields(data)))
+
+	//start rpc server
+
+	msg := new(Message)
+	err := rpc.Register(msg)
+	fmt.Println(err)
+
+	//runs listener in background as a go function
+	go func() {
+		err = StartRpcServer()
+		fmt.Println(err)
+	}()
 
 	// gets the options to pass to the daemon
-
 	_, c1, closer, err := createDaemonClientPair(opts, *pubsubRouter, *pubsubSign, *pubsubSignStrict, *gossipsubHeartbeatInterval, *gossipsubHeartbeatInitialDelay)
 	if err != nil {
 		panic(err)
 	}
+
+	// fmt.Println(fmt.Printf("%#v",*d1))
+	// fmt.Println(fmt.Printf("%#v",*c1))
 
 	defer closer()
 
