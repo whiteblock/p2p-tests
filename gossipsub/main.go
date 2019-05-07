@@ -158,16 +158,16 @@ func main() {
 
 	// TODO open a RPC port to publish messages
 
-	var end_waiter sync.WaitGroup
-	end_waiter.Add(1)
-	var signal_channel chan os.Signal
-	signal_channel = make(chan os.Signal, 1)
-	signal.Notify(signal_channel, os.Interrupt)
+	var endWaiter sync.WaitGroup
+	endWaiter.Add(1)
+	var signalChannel chan os.Signal
+	signalChannel = make(chan os.Signal, 1)
+	signal.Notify(signalChannel, os.Interrupt)
 	go func() {
-		<-signal_channel
-		end_waiter.Done()
+		<-signalChannel
+		endWaiter.Done()
 	}()
 
 	fmt.Printf("Daemon started")
-	end_waiter.Wait()
+	endWaiter.Wait()
 }
