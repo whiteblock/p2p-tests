@@ -6,7 +6,7 @@ gossipsub/gossipsub
 *.dll
 *.so
 *.dylib
-p2p-tests/p2p-tests
+p2p-tests
 
 # Test binary, built with `go test -c`
 *.test
