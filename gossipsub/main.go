@@ -2,14 +2,10 @@ package main
 
 import (
 	"io"
-	"os"
 	"fmt"
 	"log"
-	"sync"
 	"flag"
 	"strings"
-	// "context"
-	"os/signal"
 	"crypto/rand"
 	libp2p "github.com/libp2p/go-libp2p"
 	ma "github.com/multiformats/go-multiaddr"
@@ -94,18 +90,12 @@ func main() {
 		if *relayHop {
 			relayOpts = append(relayOpts, relay.OptHop)
 		}
-		// if *relayDiscovery {
-		// 	relayOpts = append(relayOpts, relay.OptDiscovery)
-		// }
 		opts = append(opts, libp2p.EnableRelay(relayOpts...))
 	}
 
 	if *noListen {
 		opts = append(opts, libp2p.NoListenAddrs)
 	}
-
-	// heartbeatInterval := int(*gossipsubHeartbeatInterval)
-	// heartbeatInitialDelay := int(*gossipsubHeartbeatInitialDelay)
 
 	fmt.Println("******Daemon Configuration******")
 	fmt.Println("id: ", *id)
@@ -129,13 +119,10 @@ func main() {
 
 	// gets the options to pass to the deamon
 
-	d1, c1, closer, err := createDaemonClientPair(opts, *pubsubRouter, *pubsubSign, *pubsubSignStrict, *gossipsubHeartbeatInterval, *gossipsubHeartbeatInitialDelay)
+	_, c1, closer, err := createDaemonClientPair(opts, *pubsubRouter, *pubsubSign, *pubsubSignStrict, *gossipsubHeartbeatInterval, *gossipsubHeartbeatInitialDelay)
 	if err != nil {
 		panic(err)
 	}
-
-	fmt.Println(fmt.Printf("%#v",*d1))
-	fmt.Println(fmt.Printf("%#v",*c1))
 
 	defer closer()
 
@@ -159,16 +146,9 @@ func main() {
 
 	// TODO open a RPC port to publish messages
 
-	var end_waiter sync.WaitGroup
-	end_waiter.Add(1)
-	var signal_channel chan os.Signal
-	signal_channel = make(chan os.Signal, 1)
-	signal.Notify(signal_channel, os.Interrupt)
-	go func() {
-		<-signal_channel
-		end_waiter.Done()
-	}()
-
 	fmt.Printf("Daemon started")
-	end_waiter.Wait()
+	
+	chanwait()
+
+	
 }
