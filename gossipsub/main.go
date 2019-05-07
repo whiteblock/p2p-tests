@@ -1,29 +1,28 @@
 package main
 
 import (
-	"io"
-	"os"
-	"fmt"
-	"log"
-	"sync"
-	"flag"
-	"strings"
-	// "context"
-	"os/signal"
 	"crypto/rand"
+	"flag"
+	"fmt"
 	libp2p "github.com/libp2p/go-libp2p"
-	ma "github.com/multiformats/go-multiaddr"
-	crypto "github.com/libp2p/go-libp2p-crypto"
 	relay "github.com/libp2p/go-libp2p-circuit"
 	connmgr "github.com/libp2p/go-libp2p-connmgr"
+	crypto "github.com/libp2p/go-libp2p-crypto"
 	c "github.com/libp2p/go-libp2p-daemon/p2pclient"
 	identify "github.com/libp2p/go-libp2p/p2p/protocol/identify"
+	ma "github.com/multiformats/go-multiaddr"
+	"io"
+	"log"
+	"os"
+	"strings"
+	"sync"
+	// "context"
+	"os/signal"
 )
 
 func main() {
 
 	identify.ClientVersion = "p2pd/0.1"
-
 	id := flag.String("id", "", "peer identity; private key file")
 	connMgr := flag.Bool("connManager", false, "Enables the Connection Manager")
 	connMgrLo := flag.Int("connLo", 256, "Connection Manager Low Water mark")
@@ -110,8 +109,8 @@ func main() {
 	fmt.Println("******Daemon Configuration******")
 	fmt.Println("id: ", *id)
 	fmt.Println("connection manager: ", *connMgr)
-	fmt.Println("connmgrLo: ",*connMgrLo)
-	fmt.Println("connmgrHi: ",*connMgrHi)
+	fmt.Println("connmgrLo: ", *connMgrLo)
+	fmt.Println("connmgrHi: ", *connMgrHi)
 	fmt.Println("connMgrGrace: ", *connMgrGrace)
 	fmt.Println("natPortMap: ", *natPortMap)
 	fmt.Println("pubsubRouter: ", *pubsubRouter)
@@ -134,8 +133,8 @@ func main() {
 		panic(err)
 	}
 
-	fmt.Println(fmt.Printf("%#v",*d1))
-	fmt.Println(fmt.Printf("%#v",*c1))
+	fmt.Println(fmt.Printf("%#v", *d1))
+	fmt.Println(fmt.Printf("%#v", *c1))
 
 	defer closer()
 
