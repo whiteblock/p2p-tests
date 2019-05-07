@@ -13,7 +13,6 @@ import (
 	ma "github.com/multiformats/go-multiaddr"
 	"io"
 	"log"
-	"net/rpc"
 	"strings"
 )
 
@@ -95,14 +94,9 @@ func main() {
 		opts = append(opts, libp2p.NoListenAddrs)
 	}
 
-	//start rpc server
-	msg := new(Message)
-	err := rpc.Register(msg)
-	fmt.Println(err)
-
 	//runs listener in background as a go function
 	go func() {
-		err = StartRpcServer()
+		err := StartRpcServer()
 		fmt.Println(err)
 	}()
 
@@ -111,7 +105,10 @@ func main() {
 	if err != nil {
 		panic(err)
 	}
-	pubsub(d, *pubsubRouter, *pubsubSign, *pubsubSignStrict, *gossipsubHeartbeatInterval, *gossipsubHeartbeatInitialDelay)
+	err = pubsub(d, *pubsubRouter, *pubsubSign, *pubsubSignStrict, *gossipsubHeartbeatInterval, *gossipsubHeartbeatInitialDelay)
+	if err != nil{
+		panic(err)
+	}
 
 	// fmt.Println(fmt.Printf("%#v",*d1))
 	// fmt.Println(fmt.Printf("%#v",*c1))

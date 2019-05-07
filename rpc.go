@@ -7,10 +7,6 @@ import(
 	"net/http"
 )
 
-type Message struct {
-	payload string
-}
-
 func CreateRpcClient() *rpc.Client {
 	client, err := rpc.DialHTTP("tcp", "127.0.0.1:9000")
 	if err != nil {
