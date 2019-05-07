@@ -4,22 +4,22 @@ import (
 	"crypto/rand"
 	"flag"
 	"fmt"
-	"github.com/kovetskiy/godocs"
-	libp2p "github.com/libp2p/go-libp2p"
+	"github.com/libp2p/go-libp2p"
 	relay "github.com/libp2p/go-libp2p-circuit"
 	connmgr "github.com/libp2p/go-libp2p-connmgr"
 	crypto "github.com/libp2p/go-libp2p-crypto"
 	c "github.com/libp2p/go-libp2p-daemon/p2pclient"
-	identify "github.com/libp2p/go-libp2p/p2p/protocol/identify"
+	"github.com/libp2p/go-libp2p/p2p/protocol/identify"
 	ma "github.com/multiformats/go-multiaddr"
 	log "github.com/sirupsen/logrus"
 	"io"
-	"log"
 	"os"
 	"strings"
 	"sync"
 	// "context"
 	"os/signal"
+	"net/rpc"
+
 )
 
 func main() {
@@ -108,7 +108,6 @@ func main() {
 	// Logrus provides JSON logs.
 	log.SetFormatter(&log.JSONFormatter{})
 	log.WithFields(log.Fields{
-		("******Daemon Configuration******")
 		"id":                             *id,
 		"pubsubRouter":                   *pubsubRouter,
 		"gossipsubHeartbeatInterval":     *gossipsubHeartbeatInterval,
@@ -137,20 +136,18 @@ func main() {
 	err = c1.NewStreamHandler(testProtos, func(info *c.StreamInfo, conn io.ReadWriteCloser) {
 		defer conn.Close()
 		buf := make([]byte, 1024)
-		n, err := conn.Read(buf)
+		_, err := conn.Read(buf)
 		if err != nil {
 			panic(err)
 		}
-
-		// TODO print to JSON file.
-		fmt.Printf("%s\n", buf[0:n])
 	})
 
 	if err != nil {
 		panic(err)
 	}
 
-	// TODO open a RPC port to publish messages
+
+
 
 	var endWaiter sync.WaitGroup
 	endWaiter.Add(1)
