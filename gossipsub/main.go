@@ -4,6 +4,7 @@ import (
 	"crypto/rand"
 	"flag"
 	"fmt"
+	"github.com/kovetskiy/godocs"
 	libp2p "github.com/libp2p/go-libp2p"
 	relay "github.com/libp2p/go-libp2p-circuit"
 	connmgr "github.com/libp2p/go-libp2p-connmgr"
@@ -11,6 +12,7 @@ import (
 	c "github.com/libp2p/go-libp2p-daemon/p2pclient"
 	identify "github.com/libp2p/go-libp2p/p2p/protocol/identify"
 	ma "github.com/multiformats/go-multiaddr"
+	log "github.com/sirupsen/logrus"
 	"io"
 	"log"
 	"os"
@@ -103,30 +105,22 @@ func main() {
 		opts = append(opts, libp2p.NoListenAddrs)
 	}
 
-	// heartbeatInterval := int(*gossipsubHeartbeatInterval)
-	// heartbeatInitialDelay := int(*gossipsubHeartbeatInitialDelay)
+	// Logrus provides JSON logs.
+	log.SetFormatter(&log.JSONFormatter{})
+	log.WithFields(log.Fields{
+		("******Daemon Configuration******")
+		"id":                             *id,
+		"pubsubRouter":                   *pubsubRouter,
+		"gossipsubHeartbeatInterval":     *gossipsubHeartbeatInterval,
+		"gossipsubHeartbeatInitialDelay": *gossipsubHeartbeatInitialDelay,
+		"relayEnabled":                   *relayEnabled,
+		"relayActive":                    *relayActive,
+		"relayHop":                       *relayHop,
+		"hostAddrs":                      *hostAddrs,
+		"announceAddrs":                  *announceAddrs,
+	}).Fatal("something bad happened")
 
-	fmt.Println("******Daemon Configuration******")
-	fmt.Println("id: ", *id)
-	fmt.Println("connection manager: ", *connMgr)
-	fmt.Println("connmgrLo: ", *connMgrLo)
-	fmt.Println("connmgrHi: ", *connMgrHi)
-	fmt.Println("connMgrGrace: ", *connMgrGrace)
-	fmt.Println("natPortMap: ", *natPortMap)
-	fmt.Println("pubsubRouter: ", *pubsubRouter)
-	fmt.Println("pubsubSign: ", *pubsubSign)
-	fmt.Println("pubsubSignStrict: ", *pubsubSignStrict)
-	fmt.Println("gossipsubHeartbeatInterval: ", *gossipsubHeartbeatInterval)
-	fmt.Println("gossipsubHeartbeatInitialDelay: ", *gossipsubHeartbeatInitialDelay)
-	fmt.Println("relayEnabled: ", *relayEnabled)
-	fmt.Println("relayActive: ", *relayActive)
-	fmt.Println("relayHop: ", *relayHop)
-	fmt.Println("hostAddrs: ", *hostAddrs)
-	fmt.Println("announceAddrs: ", *announceAddrs)
-	fmt.Println("noListen: ", *noListen)
-	fmt.Println("********************************")
-
-	// gets the options to pass to the deamon
+	// gets the options to pass to the daemon
 
 	d1, c1, closer, err := createDaemonClientPair(opts, *pubsubRouter, *pubsubSign, *pubsubSignStrict, *gossipsubHeartbeatInterval, *gossipsubHeartbeatInitialDelay)
 	if err != nil {
@@ -138,9 +132,9 @@ func main() {
 
 	defer closer()
 
-	testprotos := []string{"/test"}
+	testProtos := []string{"/test"}
 
-	err = c1.NewStreamHandler(testprotos, func(info *c.StreamInfo, conn io.ReadWriteCloser) {
+	err = c1.NewStreamHandler(testProtos, func(info *c.StreamInfo, conn io.ReadWriteCloser) {
 		defer conn.Close()
 		buf := make([]byte, 1024)
 		n, err := conn.Read(buf)
