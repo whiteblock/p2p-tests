@@ -18,9 +18,6 @@ import (
 	identify "github.com/libp2p/go-libp2p/p2p/protocol/identify"
 )
 
-func init() {
-	
-}
 
 func main() {
 	identify.ClientVersion = "p2pd/0.1"
