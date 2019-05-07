@@ -1,21 +1,20 @@
 package main
 
 import (
-	"io"
-	"fmt"
-	"log"
-	"flag"
-	"strings"
-	"net/rpc"
 	"crypto/rand"
-	logr "github.com/sirupsen/logrus"
-	libp2p "github.com/libp2p/go-libp2p"
-	ma "github.com/multiformats/go-multiaddr"
-	crypto "github.com/libp2p/go-libp2p-crypto"
+	"flag"
+	"fmt"
+	"github.com/libp2p/go-libp2p"
 	relay "github.com/libp2p/go-libp2p-circuit"
 	connmgr "github.com/libp2p/go-libp2p-connmgr"
+	crypto "github.com/libp2p/go-libp2p-crypto"
 	c "github.com/libp2p/go-libp2p-daemon/p2pclient"
-	identify "github.com/libp2p/go-libp2p/p2p/protocol/identify"
+	"github.com/libp2p/go-libp2p/p2p/protocol/identify"
+	ma "github.com/multiformats/go-multiaddr"
+	"io"
+	"log"
+	"net/rpc"
+	"strings"
 )
 
 
@@ -96,23 +95,7 @@ func main() {
 		opts = append(opts, libp2p.NoListenAddrs)
 	}
 
-	// Logrus provides JSON logs.
-	logr.SetFormatter(&logr.JSONFormatter{})
-	data := logr.Fields{
-		"id":                             *id,
-		"pubsubRouter":                   *pubsubRouter,
-		"gossipsubHeartbeatInterval":     *gossipsubHeartbeatInterval,
-		"gossipsubHeartbeatInitialDelay": *gossipsubHeartbeatInitialDelay,
-		"relayEnabled":                   *relayEnabled,
-		"relayActive":                    *relayActive,
-		"relayHop":                       *relayHop,
-		"hostAddrs":                      *hostAddrs,
-		"announceAddrs":                  *announceAddrs,
-	}
-	fmt.Println(fmt.Printf("%#v",logr.WithFields(data)))
-
 	//start rpc server
-
 	msg := new(Message)
 	err := rpc.Register(msg)
 	fmt.Println(err)
@@ -124,10 +107,11 @@ func main() {
 	}()
 
 	// gets the options to pass to the daemon
-	_, c1, closer, err := createDaemonClientPair(opts, *pubsubRouter, *pubsubSign, *pubsubSignStrict, *gossipsubHeartbeatInterval, *gossipsubHeartbeatInitialDelay)
+	d, cl, closer, err := createDaemonClientPair(opts)
 	if err != nil {
 		panic(err)
 	}
+	pubsub(d, *pubsubRouter, *pubsubSign, *pubsubSignStrict, *gossipsubHeartbeatInterval, *gossipsubHeartbeatInitialDelay)
 
 	// fmt.Println(fmt.Printf("%#v",*d1))
 	// fmt.Println(fmt.Printf("%#v",*c1))
@@ -136,7 +120,7 @@ func main() {
 
 	testProtos := []string{"/test"}
 
-	err = c1.NewStreamHandler(testProtos, func(info *c.StreamInfo, conn io.ReadWriteCloser) {
+	err = cl.NewStreamHandler(testProtos, func(info *c.StreamInfo, conn io.ReadWriteCloser) {
 		defer conn.Close()
 		buf := make([]byte, 1024)
 		_, err := conn.Read(buf)
@@ -148,7 +132,6 @@ func main() {
 	if err != nil {
 		panic(err)
 	}
-
 
 	fmt.Printf("Daemon started")
 	

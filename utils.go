@@ -21,7 +21,7 @@ func createTempDir() (string, string, func(), error) {
 	daemonPath := filepath.Join(dir, "daemon.sock")
 	clientPath := filepath.Join(dir, "client.sock")
 	closer := func() {
-		os.RemoveAll(dir)
+		_ = os.RemoveAll(dir)
 	}
 	return daemonPath, clientPath, closer, nil
 }

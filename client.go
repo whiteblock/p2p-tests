@@ -10,7 +10,7 @@ import (
 	"time"
 )
 
-func createDaemonClientPair(opts []libp2p.Option, pubsubRouter string, pubsubSign, pubsubSignStrict bool, gossipsubHeartbeatInterval, gossipsubHeartbeatInitialDelay time.Duration) (*p2pd.Daemon, *c.Client, func(), error) {
+func createDaemonClientPair(opts []libp2p.Option) (*p2pd.Daemon, *c.Client, func(), error) {
 
 	ctx, _:= context.WithCancel(context.Background())
 	dAddr, _ := ma.NewMultiaddr("/ip4/127.0.0.1/tcp/8999")
@@ -32,7 +32,7 @@ func createDaemonClientPair(opts []libp2p.Option, pubsubRouter string, pubsubSig
 	return daemon, client, closer, nil
 }
 
-func pubsub(daemon p2pd.Daemon, pubsubRouter string, pubsubSign, pubsubSignStrict bool, gossipHearbeatInterval, gossipHeartBeatInitialDelay time.Duration)error{
+func pubsub(daemon *p2pd.Daemon, pubsubRouter string, pubsubSign, pubsubSignStrict bool, gossipHearbeatInterval, gossipHeartBeatInitialDelay time.Duration)error{
 	if gossipHearbeatInterval < 0{
 		ps.GossipSubHeartbeatInterval = gossipHearbeatInterval
 		ps.GossipSubHeartbeatInitialDelay = gossipHeartBeatInitialDelay
