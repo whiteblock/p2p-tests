@@ -8,12 +8,12 @@ import (
 	"strings"
 	"crypto/rand"
 	"github.com/libp2p/go-libp2p"
+	ma "github.com/multiformats/go-multiaddr"
 	relay "github.com/libp2p/go-libp2p-circuit"
-	connmgr "github.com/libp2p/go-libp2p-connmgr"
 	crypto "github.com/libp2p/go-libp2p-crypto"
+	connmgr "github.com/libp2p/go-libp2p-connmgr"
 	c "github.com/libp2p/go-libp2p-daemon/p2pclient"
 	"github.com/libp2p/go-libp2p/p2p/protocol/identify"
-	ma "github.com/multiformats/go-multiaddr"
 )
 
 func main() {
@@ -102,7 +102,7 @@ func main() {
 		panic(err)
 	}
 	err = pubsub(d, *pubsubRouter, *pubsubSign, *pubsubSignStrict, *gossipsubHeartbeatInterval, *gossipsubHeartbeatInitialDelay)
-	if err != nil{
+	if err != nil {
 		panic(err)
 	}
 
