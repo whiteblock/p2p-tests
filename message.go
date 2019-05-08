@@ -1,7 +1,6 @@
 package main
 
 import (
-	"encoding/json"
 	"fmt"
 	"time"
 	// "encoding/json"
@@ -37,6 +36,14 @@ func (h *Handler) Execute(req Request, res *Response) (err error) {
 		fmt.Println("A name must be specified")
 		return nil
 	}
-	res.Message = Message{Origin:"0x0"}
+	res.Message = Message{
+		Origin:"0x0",
+		Destination: "0x0",
+		Relayer: "0x0",
+		Timestamp: time.Now(),
+		Data: "peepeepoopookaka",
+		MessageID: "0x0",
+		Nonce: 1,
+	}
 	return nil
 }
