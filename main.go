@@ -93,11 +93,8 @@ func main() {
 		opts = append(opts, libp2p.NoListenAddrs)
 	}
 
-	//runs listener in background as a go function
-	go func() {
-		err := StartRpcServer()
-		fmt.Println(err)
-	}()
+	// runServer()
+	// runClient()
 
 	// gets the options to pass to the daemon
 	d, cl, closer, err := createDaemonClientPair(opts)
@@ -109,8 +106,8 @@ func main() {
 		panic(err)
 	}
 
-	// fmt.Println(fmt.Printf("%#v",*d1))
-	// fmt.Println(fmt.Printf("%#v",*c1))
+	fmt.Println(fmt.Printf("%#v",*d))
+	fmt.Println(fmt.Printf("%#v",*cl))
 
 	defer closer()
 
@@ -129,7 +126,7 @@ func main() {
 		panic(err)
 	}
 
-	fmt.Printf("Daemon started")
+	fmt.Printf("Daemon started \n")
 	
 	chanwait()
 

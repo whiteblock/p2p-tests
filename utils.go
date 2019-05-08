@@ -2,60 +2,11 @@ package main
 
 import (
 	"os"
+	"log"
 	"sync"
-	"runtime"
 	"os/signal"
-	"io/ioutil"
-	"path/filepath"
-	ma "github.com/multiformats/go-multiaddr"
+	// "syscall"
 )
-
-type makeEndpoints func() (daemon, client ma.Multiaddr, cleanup func(), err error)
-
-func createTempDir() (string, string, func(), error) {
-	root := os.TempDir()
-	dir, err := ioutil.TempDir(root, "p2pd")
-	if err != nil {
-		return "", "", nil, err
-	}
-	daemonPath := filepath.Join(dir, "daemon.sock")
-	clientPath := filepath.Join(dir, "client.sock")
-	closer := func() {
-		_ = os.RemoveAll(dir)
-	}
-	return daemonPath, clientPath, closer, nil
-}
-
-func makeTcpLocalhostEndpoints() (daemon, client ma.Multiaddr, cleanup func(), err error) {
-	daemon, err = ma.NewMultiaddr("/ip4/127.0.0.1/tcp/0")
-	if err != nil {
-		return nil, nil, nil, err
-	}
-	client, err = ma.NewMultiaddr("/ip4/127.0.0.1/tcp/0")
-	if err != nil {
-		return nil, nil, nil, err
-	}
-	cleanup = func() {}
-	return daemon, client, cleanup, nil
-}
-
-func makeUnixEndpoints() (daemon, client ma.Multiaddr, cleanup func(), err error) {
-	daemonPath, clientPath, cleanup, err := createTempDir()
-	if err != nil {
-		return nil, nil, nil, err
-	}
-	daemon, _ = ma.NewComponent("unix", daemonPath)
-	client, _ = ma.NewComponent("unix", clientPath)
-	return
-}
-
-func getEndpointsMaker() makeEndpoints {
-	if runtime.GOOS == "windows" {
-		return makeTcpLocalhostEndpoints
-	} else {
-		return makeUnixEndpoints
-	}
-}
 
 func chanwait() {
 	var end_waiter sync.WaitGroup
@@ -69,3 +20,37 @@ func chanwait() {
 	}()
 	end_waiter.Wait()
 }
+
+func runServer() {
+	server := new(Server)
+	defer server.Close()
+	// handleSignals()
+	err := server.Start()
+	if err != nil {
+		panic(err)
+	}
+}
+
+func runClient() {
+	client := new(Client)
+	defer client.Close()
+	err := client.Init()
+	if err != nil {
+		panic(err)
+	}
+	for {
+		response, err := client.ClientExec("peepeepoopookak")
+		if err != nil {
+			panic(err)
+		}
+		log.Println(response)
+	}
+}
+
+// func handleSignals() {
+// 	signals := make(chan os.Signal, 1)
+
+// 	signal.Notify(signals, syscall.SIGINT, syscall.SIGTERM)
+// 	<-signals
+// 	log.Println("signal received")
+// }

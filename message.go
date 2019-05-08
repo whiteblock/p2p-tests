@@ -3,7 +3,7 @@ package main
 import(
 	"fmt"
 	"time"
-	"encoding/json"
+	// "encoding/json"
 )
 
 type Message struct {
@@ -13,11 +13,26 @@ type Message struct {
 	Data        string            `json:"data"`
 }
 
-func (m *Message) Relay() ([]byte, error){
-	out, err := json.Marshal(m)
-	if err!= nil {
-		return nil, err
+type Response struct {
+	Message Message
+}
+
+type Request struct {
+	Name string
+}
+
+type Handler struct {}
+
+var (
+	request  = Request{Name: "ok"}
+	response = new(Response)
+)
+
+func (h *Handler) Execute(req Request, res *Response) (err error) {
+	if req.Name == "" {
+		fmt.Println("A name must be specified")
+		return nil
 	}
-	fmt.Println(out)
-	return out, nil
+	res.Message = Message{Origin:"0x0"}
+	return nil
 }
