@@ -1,13 +1,13 @@
 package main
 
 import (
-	"os"
-	"sync"
-	"runtime"
-	"os/signal"
-	"io/ioutil"
-	"path/filepath"
 	ma "github.com/multiformats/go-multiaddr"
+	"io/ioutil"
+	"os"
+	"os/signal"
+	"path/filepath"
+	"runtime"
+	"sync"
 )
 
 type makeEndpoints func() (daemon, client ma.Multiaddr, cleanup func(), err error)

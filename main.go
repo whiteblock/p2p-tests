@@ -1,12 +1,9 @@
 package main
 
 import (
-	"io"
-	"fmt"
-	"log"
-	"flag"
-	"strings"
 	"crypto/rand"
+	"flag"
+	"fmt"
 	"github.com/libp2p/go-libp2p"
 	relay "github.com/libp2p/go-libp2p-circuit"
 	connmgr "github.com/libp2p/go-libp2p-connmgr"
@@ -14,6 +11,9 @@ import (
 	c "github.com/libp2p/go-libp2p-daemon/p2pclient"
 	"github.com/libp2p/go-libp2p/p2p/protocol/identify"
 	ma "github.com/multiformats/go-multiaddr"
+	"io"
+	"log"
+	"strings"
 )
 
 func main() {
@@ -105,7 +105,7 @@ func main() {
 		panic(err)
 	}
 	err = pubsub(d, *pubsubRouter, *pubsubSign, *pubsubSignStrict, *gossipsubHeartbeatInterval, *gossipsubHeartbeatInitialDelay)
-	if err != nil{
+	if err != nil {
 		panic(err)
 	}
 
@@ -130,7 +130,7 @@ func main() {
 	}
 
 	fmt.Printf("Daemon started")
-	
+
 	chanwait()
 
 }

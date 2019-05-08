@@ -1,10 +1,10 @@
 package main
 
-import(
+import (
 	"log"
 	"net"
-	"net/rpc"
 	"net/http"
+	"net/rpc"
 )
 
 func CreateRpcClient() *rpc.Client {
@@ -31,4 +31,3 @@ func StartRpcServer() error {
 	}
 	return nil
 }
-
