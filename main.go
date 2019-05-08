@@ -1,9 +1,12 @@
 package main
 
 import (
-	"crypto/rand"
-	"flag"
+	"io"
 	"fmt"
+	"log"
+	"flag"
+	"strings"
+	"crypto/rand"
 	"github.com/libp2p/go-libp2p"
 	relay "github.com/libp2p/go-libp2p-circuit"
 	connmgr "github.com/libp2p/go-libp2p-connmgr"
@@ -11,11 +14,7 @@ import (
 	c "github.com/libp2p/go-libp2p-daemon/p2pclient"
 	"github.com/libp2p/go-libp2p/p2p/protocol/identify"
 	ma "github.com/multiformats/go-multiaddr"
-	"io"
-	"log"
-	"strings"
 )
-
 
 func main() {
 	identify.ClientVersion = "p2pd/0.1"
