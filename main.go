@@ -126,11 +126,12 @@ func main() {
 	if err != nil {
 		panic(err)
 	}
-	rpc.Register(new(Handler))
+	
 	server := rpc.NewServer()
 
 	go func(){
 		server.Accept(man.NetListener(d.Listener()))
+		server.Register(new(Handler))
 	}()
 
 	for _,peer := range peers{

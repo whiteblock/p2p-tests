@@ -21,27 +21,21 @@ type Response struct {
 }
 
 type Request struct {
-	Name string
+	Message Message
 }
 
-type Handler struct {}
-
-var (
-	request  = Request{Name: "ok"}
-	response = new(Response)
-)
+type Handler struct {
+	Relayer string//Passed to relayer
+}
 
 func (h *Handler) Execute(req Request, res *Response) (err error) {
-	if req.Name == "" {
-		fmt.Println("A name must be specified")
-		return nil
-	}
-	fmt.Printf("Received Request: %#v\n",req)
 	
+	fmt.Printf("Received Request: %#v\n",req)
+
 	res.Message = Message{
 		Origin:"0x0",
 		Destination: "0x0",
-		Relayer: "0x0",
+		Relayer: h.Relayer,
 		Timestamp: time.Now(),
 		Data: "peepeepoopookaka",
 		MessageID: "0x0",

@@ -2,7 +2,6 @@ package main
 
 import (
 	"os"
-	"log"
 	"fmt"
 	"sync"
 	"os/signal"
@@ -27,33 +26,6 @@ func chanwait() {
 	end_waiter.Wait()
 }
 
-func runServer() {
-	server := new(Server)
-	defer server.Close()
-	// handleSignals()
-	err := server.Start()
-	if err != nil {
-		log.Println(err)
-		return
-	}
-}
-
-func runClient() {
-	client := new(Client)
-	defer client.Close()
-	err := client.Init()
-	if err != nil {
-		log.Println(err)
-		return
-	}
-	for {
-		response, err := client.ClientExec("peepeepoopookak")
-		if err != nil {
-			log.Println(err)
-		}
-		log.Println(response)
-	}
-}
 
 // func handleSignals() {
 // 	signals := make(chan os.Signal, 1)
