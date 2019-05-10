@@ -1,7 +1,6 @@
 package main
 
 import (
-	"io"
 	"os"
 	"fmt"
 	"log"
@@ -10,6 +9,8 @@ import (
 	"strings"
 	"crypto/rand"
 	"encoding/hex"
+	"encoding/json"
+	"time"
 	"github.com/libp2p/go-libp2p"
 	logrus "github.com/sirupsen/logrus"
 	tmpps "github.com/libp2p/go-libp2p-peerstore/pstoremem"
@@ -18,7 +19,7 @@ import (
 	relay "github.com/libp2p/go-libp2p-circuit"
 	crypto "github.com/libp2p/go-libp2p-crypto"
 	connmgr "github.com/libp2p/go-libp2p-connmgr"
-	c "github.com/libp2p/go-libp2p-daemon/p2pclient"
+	//c "github.com/libp2p/go-libp2p-daemon/p2pclient"
 	"github.com/libp2p/go-libp2p/p2p/protocol/identify"
 )
 
@@ -26,6 +27,7 @@ var (
 	portStartPoint int
 	bindIP string
 	maddrs []string
+	sendInterval int64
 )
 
 func main() {
@@ -58,6 +60,7 @@ func main() {
 
 	flag.StringSliceVarP(&rawPeers,"peer","p",[]string{},"peers")
 	flag.IntVar(&portStartPoint,"port-start",8999,"port start")
+	flag.Int64Var(&sendInterval,"send-interval",-1,"interval to send messages, -1 means don't send")
 	flag.StringVar(&bindIP,"ip","127.0.0.1","ip address to bind on")
 	flag.StringSliceVar(&maddrs, "maddr", []string{}, "addresses that daemon owns")
 
@@ -72,13 +75,13 @@ func main() {
 
 	if *peerStore != "" {
 		pstore := tmpps.NewPeerstore()
+		logrus.Debug("Created the peerstore")
 		opts = append(opts, libp2p.Peerstore(pstore))
 	}
 
 	if *id != "" {
-		var r io.Reader
-		r = rand.Reader
-		priv, _, err := crypto.GenerateEd25519Key(r)
+		logrus.Debug("Generating ED25519 Key")
+		priv, _, err := crypto.GenerateEd25519Key(rand.Reader)
 		if err != nil {
 			panic(err)
 		}
@@ -170,26 +173,55 @@ func main() {
 		}
 	}
 
-	dch, err := cl.Subscribe(ctx, "peepeepoopookaka")
+	dch, err := cl.Subscribe(ctx, "rpc")
 	if err != nil {
 		fmt.Println(err)
 	}
+
 	go func() {
 		for{
-			foo := <- dch
-			fmt.Printf("subscription: %#v \n", foo)
-			fmt.Printf("data: %s \n", string(foo.Data))
-			fmt.Println("topics: ", foo.TopicIDs)
+			msg := <- dch
+			var data interface{}
+			err := json.Unmarshal([]byte(msg.Data),&data)
+			if err != nil {
+				data = string(msg.Data)
+			}
+			logrus.WithFields(logrus.Fields{
+				"from":hex.EncodeToString(msg.From),
+				"data":data,
+				"seqno":hex.EncodeToString(msg.Seqno),
+				"topicIDs":msg.TopicIDs,
+				"signature":hex.EncodeToString(msg.Signature),
+				"key":hex.EncodeToString(msg.Key),
+			}).Info("Received a message")
 		}
 	}()
-	cl.Publish("peepeepoopookaka", []byte("doodoo"))
+ 	var counter int64
+
+	for sendInterval > 0 { //infinitely loop if > 0
+		out,err := json.Marshal(map[string]interface{}{
+			"id":counter,
+			"jsonrpc":"2.0",
+			"params":[]string{"foo","bar","foofoo","foobar","barfoo","barbar"},
+			"method":"fooooooobaaaaaaaar",
+		})
+		logrus.WithFields(logrus.Fields{
+				"sending":string(out),
+				"error":err,
+			}).Info("Sending a message")
+		cl.Publish("rpc", out)
+
+		counter++
+		time.Sleep(time.Duration(sendInterval)*time.Microsecond)
+		if counter > 1000000000 {
+			counter = 0
+		}
+	}
 	
-	// fmt.Printf("%#v\n",*d)
-	// fmt.Printf("%#v\n",*cl)
 
 	defer closer()
 
-	testProtos := []string{"/test"}
+	/*testProtos := []string{"/test"}
 
 	err = cl.NewStreamHandler(testProtos, func(info *c.StreamInfo, conn io.ReadWriteCloser) {
 		defer conn.Close()
@@ -203,7 +235,7 @@ func main() {
 		panic(err)
 	}
 
-	fmt.Printf("Daemon started \n")
+	fmt.Printf("Daemon started \n")*/
 	
 	chanwait()
 
