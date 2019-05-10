@@ -12,6 +12,7 @@ import (
 	"encoding/hex"
 	"github.com/libp2p/go-libp2p"
 	logrus "github.com/sirupsen/logrus"
+	tmpps "github.com/libp2p/go-libp2p-peerstore/pstoremem"
 	man "github.com/multiformats/go-multiaddr-net"
 	ma "github.com/multiformats/go-multiaddr"
 	relay "github.com/libp2p/go-libp2p-circuit"
@@ -24,6 +25,7 @@ import (
 var (
 	portStartPoint int
 	bindIP string
+	maddrs []string
 )
 
 func main() {
@@ -51,10 +53,12 @@ func main() {
 	hostAddrs := flag.String("hostAddrs", "", "comma separated list of multiaddrs the host should listen on")
 	announceAddrs := flag.String("announceAddrs", "", "comma separated list of multiaddrs the host should announce to the network")
 	noListen := flag.Bool("noListenAddrs", false, "sets the host to listen on no addresses")
+	peerStore := flag.String("peerstore", "", "peers to add to the daemon's peerstore")
 
 	flag.StringSliceVarP(&rawPeers,"peer","p",[]string{},"peers")
 	flag.IntVar(&portStartPoint,"port-start",8999,"port start")
 	flag.StringVar(&bindIP,"ip","127.0.0.1","ip address to bind on")
+	flag.StringSliceVar(&maddrs, "maddr", []string{}, "addresses that daemon owns")
 
 	flag.Parse(os.Args)
 
@@ -64,6 +68,11 @@ func main() {
 	}
 
 	var opts []libp2p.Option
+
+	if *peerStore != "" {
+		pstore := tmpps.NewPeerstore()
+		opts = append(opts, libp2p.Peerstore(pstore))
+	}
 
 	if *id != "" {
 		var r io.Reader
@@ -119,14 +128,6 @@ func main() {
 		opts = append(opts, libp2p.NoListenAddrs)
 	}
 
-	/*go runServer()
-	for {
-		func(){
-			defer recover()
-			runClient()
-		}()
-		
-	}*/
 	// gets the options to pass to the daemon
 	d, cl, closer, err := createDaemonClientPair(opts)
 	if err != nil {
@@ -139,6 +140,15 @@ func main() {
 
 	server := rpc.NewServer()
 
+	var malist []ma.Multiaddr
+	for _, maddr := range maddrs {
+		l, err := ma.NewMultiaddr(maddr)
+		if err!=nil{
+			panic(err)
+		}
+		malist = append(malist, l)
+	}
+
 	go func(){
 		pid := make([]byte,len(string(d.ID()))*2)
 		hex.Encode(pid,[]byte(d.ID()))
@@ -150,8 +160,10 @@ func main() {
 		
 	}()
 
+	fmt.Println(d.Addrs())
+
 	for _,peer := range peers{
-		err := cl.Connect(peer.ID,peer.Addrs)
+		err := cl.Connect(peer.ID,malist)
 		if err != nil {
 			panic(err)
 		}
@@ -170,7 +182,6 @@ func main() {
 		var reply interface{}
 		rpcClient.Call("peepeepoopookaka",nil,&reply)
 		fmt.Printf("REPLY IS %#v\n",reply)
-		
 	})
 
 	if err != nil {

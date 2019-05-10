@@ -6,9 +6,8 @@ import (
 	"sync"
 	"os/signal"
 	"strings"
-	//p2pd "github.com/libp2p/go-libp2p-daemon"
-	ma "github.com/multiformats/go-multiaddr"
 	peer "github.com/libp2p/go-libp2p-peer"
+	ma "github.com/multiformats/go-multiaddr"
 	ps "github.com/libp2p/go-libp2p-peerstore"
 )
 
@@ -24,6 +23,13 @@ func chanwait() {
 	}()
 	end_waiter.Wait()
 }
+
+// func handleSignals() {
+// 	signals := make(chan os.Signal, 1)
+// 	signal.Notify(signals, syscall.SIGINT, syscall.SIGTERM)
+// 	<-signals
+// 	log.Println("signal received")
+// }
 
 func CreatePeerInfos(peers []string) ([]ps.PeerInfo,error) {
 	out := []ps.PeerInfo{}
