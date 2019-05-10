@@ -1,6 +1,7 @@
 package main
 
 import (
+	"fmt"
 	"context"
 	"github.com/libp2p/go-libp2p"
 	p2pd "github.com/libp2p/go-libp2p-daemon"
@@ -12,8 +13,9 @@ import (
 
 func createDaemonClientPair(opts []libp2p.Option) (*p2pd.Daemon, *c.Client, func(), error) {
 	ctx, _:= context.WithCancel(context.Background())
-	dAddr, _ := ma.NewMultiaddr("/ip4/127.0.0.1/tcp/8999")
-	cmaddr, _ := ma.NewMultiaddr("/ip4/127.0.0.1/tcp/9000")
+
+	dAddr, _ := ma.NewMultiaddr(fmt.Sprintf("/ip4/%s/tcp/%d",bindIP,portStartPoint))
+	cmaddr, _ := ma.NewMultiaddr(fmt.Sprintf("/ip4/%s/tcp/%d",bindIP,portStartPoint+1))
 
 	daemon, err := p2pd.NewDaemon(ctx, dAddr, "", opts ...)
 	if err != nil {

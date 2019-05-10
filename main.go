@@ -9,6 +9,7 @@ import (
 	"net/rpc"
 	"strings"
 	"crypto/rand"
+	"encoding/hex"
 	"github.com/libp2p/go-libp2p"
 	logrus "github.com/sirupsen/logrus"
 	man "github.com/multiformats/go-multiaddr-net"
@@ -18,6 +19,11 @@ import (
 	connmgr "github.com/libp2p/go-libp2p-connmgr"
 	c "github.com/libp2p/go-libp2p-daemon/p2pclient"
 	"github.com/libp2p/go-libp2p/p2p/protocol/identify"
+)
+
+var (
+	portStartPoint int
+	bindIP string
 )
 
 func main() {
@@ -47,6 +53,8 @@ func main() {
 	noListen := flag.Bool("noListenAddrs", false, "sets the host to listen on no addresses")
 
 	flag.StringSliceVarP(&rawPeers,"peer","p",[]string{},"peers")
+	flag.IntVar(&portStartPoint,"port-start",8999,"port start")
+	flag.StringVar(&bindIP,"ip","127.0.0.1","ip address to bind on")
 
 	flag.Parse(os.Args)
 
@@ -128,12 +136,18 @@ func main() {
 	if err != nil {
 		panic(err)
 	}
-	
+
 	server := rpc.NewServer()
 
 	go func(){
+		pid := make([]byte,len(string(d.ID()))*2)
+		hex.Encode(pid,[]byte(d.ID()))
+		fmt.Printf("ID: %s\n",d.ID().Pretty())
+		server.Register(&Handler{
+			Relayer : "0x"+string(pid),
+		})
 		server.Accept(man.NetListener(d.Listener()))
-		server.Register(new(Handler))
+		
 	}()
 
 	for _,peer := range peers{

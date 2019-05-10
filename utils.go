@@ -10,7 +10,6 @@ import (
 	ma "github.com/multiformats/go-multiaddr"
 	peer "github.com/libp2p/go-libp2p-peer"
 	ps "github.com/libp2p/go-libp2p-peerstore"
-	// "syscall"
 )
 
 func chanwait() {
@@ -26,17 +25,6 @@ func chanwait() {
 	end_waiter.Wait()
 }
 
-
-// func handleSignals() {
-// 	signals := make(chan os.Signal, 1)
-
-// 	signal.Notify(signals, syscall.SIGINT, syscall.SIGTERM)
-// 	<-signals
-// 	log.Println("signal received")
-// }
-
-
-
 func CreatePeerInfos(peers []string) ([]ps.PeerInfo,error) {
 	out := []ps.PeerInfo{}
 	for _,rawPeer := range peers {
@@ -51,6 +39,8 @@ func CreatePeerInfos(peers []string) ([]ps.PeerInfo,error) {
 		if err != nil {
 			return nil,err
 		}
+		test,err := ps.InfoFromP2pAddr(mAddr)
+		fmt.Printf("INFO: %#vn\n",test)
 		pid,err := peer.IDB58Decode(rawPid)
 		if err != nil {
 			return nil,err
