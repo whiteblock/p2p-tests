@@ -2,12 +2,15 @@ package main
 
 import (
 	"io"
+	"os"
 	"fmt"
 	"log"
-	"flag"
+	"github.com/spf13/pflag"
+	"net/rpc"
 	"strings"
 	"crypto/rand"
 	"github.com/libp2p/go-libp2p"
+	man "github.com/multiformats/go-multiaddr-net"
 	ma "github.com/multiformats/go-multiaddr"
 	relay "github.com/libp2p/go-libp2p-circuit"
 	crypto "github.com/libp2p/go-libp2p-crypto"
@@ -17,6 +20,11 @@ import (
 )
 
 func main() {
+	log.SetFlags(log.LstdFlags | log.Llongfile)
+	flag := pflag.NewFlagSet("p2p", pflag.ExitOnError)
+
+	var rawPeers []string
+
 	identify.ClientVersion = "p2pd/0.1"
 	id := flag.String("id", "", "peer identity; private key file")
 	connMgr := flag.Bool("connManager", false, "Enables the Connection Manager")
@@ -35,7 +43,15 @@ func main() {
 	hostAddrs := flag.String("hostAddrs", "", "comma separated list of multiaddrs the host should listen on")
 	announceAddrs := flag.String("announceAddrs", "", "comma separated list of multiaddrs the host should announce to the network")
 	noListen := flag.Bool("noListenAddrs", false, "sets the host to listen on no addresses")
-	flag.Parse()
+
+	flag.StringSliceVarP(&rawPeers,"peer","p",[]string{},"peers")
+
+	flag.Parse(os.Args)
+
+	peers,err := CreatePeerInfos(rawPeers)
+	if err != nil {
+		panic(err)
+	}
 
 	var opts []libp2p.Option
 
@@ -93,9 +109,14 @@ func main() {
 		opts = append(opts, libp2p.NoListenAddrs)
 	}
 
-	// runServer()
-	// runClient()
-
+	/*go runServer()
+	for {
+		func(){
+			defer recover()
+			runClient()
+		}()
+		
+	}*/
 	// gets the options to pass to the daemon
 	d, cl, closer, err := createDaemonClientPair(opts)
 	if err != nil {
@@ -105,9 +126,22 @@ func main() {
 	if err != nil {
 		panic(err)
 	}
+	rpc.Register(new(Handler))
+	server := rpc.NewServer()
 
-	fmt.Println(fmt.Printf("%#v",*d))
-	fmt.Println(fmt.Printf("%#v",*cl))
+	go func(){
+		server.Accept(man.NetListener(d.Listener()))
+	}()
+
+	for _,peer := range peers{
+		err := cl.Connect(peer.ID,peer.Addrs)
+		if err != nil {
+			panic(err)
+		}
+	}
+	
+	fmt.Printf("%#v\n",*d)
+	fmt.Printf("%#v\n",*cl)
 
 	defer closer()
 
@@ -115,11 +149,11 @@ func main() {
 
 	err = cl.NewStreamHandler(testProtos, func(info *c.StreamInfo, conn io.ReadWriteCloser) {
 		defer conn.Close()
-		buf := make([]byte, 1024)
-		_, err := conn.Read(buf)
-		if err != nil {
-			panic(err)
-		}
+		rpcClient :=  rpc.NewClient(conn)
+		var reply interface{}
+		rpcClient.Call("peepeepoopookaka",nil,&reply)
+		fmt.Printf("REPLY IS %#v\n",reply)
+		
 	})
 
 	if err != nil {

@@ -36,6 +36,8 @@ func (h *Handler) Execute(req Request, res *Response) (err error) {
 		fmt.Println("A name must be specified")
 		return nil
 	}
+	fmt.Printf("Received Request: %#v\n",req)
+	
 	res.Message = Message{
 		Origin:"0x0",
 		Destination: "0x0",
