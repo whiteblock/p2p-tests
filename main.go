@@ -9,6 +9,7 @@ import (
 	"net/rpc"
 	"strings"
 	"crypto/rand"
+	"encoding/hex"
 	"github.com/libp2p/go-libp2p"
 	logrus "github.com/sirupsen/logrus"
 	man "github.com/multiformats/go-multiaddr-net"
@@ -133,7 +134,12 @@ func main() {
 
 	go func(){
 		server.Accept(man.NetListener(d.Listener()))
-		server.Register(new(Handler))
+		pid := []byte{}
+		hex.Encode(pid,[]byte(d.ID()))
+
+		server.Register(&Handler{
+			Relayer : "0x"+string(pid),
+		})
 	}()
 
 	for _,peer := range peers{

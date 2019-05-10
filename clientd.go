@@ -12,8 +12,8 @@ import (
 
 func createDaemonClientPair(opts []libp2p.Option) (*p2pd.Daemon, *c.Client, func(), error) {
 	ctx, _:= context.WithCancel(context.Background())
-	dAddr, _ := ma.NewMultiaddr("/ip4/127.0.0.1/tcp/8999")
-	cmaddr, _ := ma.NewMultiaddr("/ip4/127.0.0.1/tcp/9000")
+	dAddr, _ := ma.NewMultiaddr("/ip4/0.0.0.0/tcp/8999")
+	cmaddr, _ := ma.NewMultiaddr("/ip4/0.0.0.0/tcp/9000")
 
 	daemon, err := p2pd.NewDaemon(ctx, dAddr, "", opts ...)
 	if err != nil {
