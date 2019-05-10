@@ -173,7 +173,7 @@ func main() {
 		}
 	}
 
-	dch, err := cl.Subscribe(ctx, "rpc")
+	dch, err := cl.Subscribe(ctx, "jargon")
 	if err != nil {
 		fmt.Println(err)
 	}
@@ -203,13 +203,13 @@ func main() {
 			"id":counter,
 			"jsonrpc":"2.0",
 			"params":[]string{"foo","bar","foofoo","foobar","barfoo","barbar"},
-			"method":"fooooooobaaaaaaaar",
+			"method":"far",
 		})
 		logrus.WithFields(logrus.Fields{
 				"sending":string(out),
 				"error":err,
 			}).Info("Sending a message")
-		cl.Publish("rpc", out)
+		cl.Publish("jargon", out)
 
 		counter++
 		time.Sleep(time.Duration(sendInterval)*time.Microsecond)
