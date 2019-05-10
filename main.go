@@ -21,6 +21,10 @@ import (
 	"github.com/libp2p/go-libp2p/p2p/protocol/identify"
 )
 
+var (
+	portStartPoint int
+)
+
 func main() {
 	log.SetFlags(log.LstdFlags | log.Llongfile)
 	logrus.SetFormatter(&logrus.JSONFormatter{})
@@ -48,6 +52,7 @@ func main() {
 	noListen := flag.Bool("noListenAddrs", false, "sets the host to listen on no addresses")
 
 	flag.StringSliceVarP(&rawPeers,"peer","p",[]string{},"peers")
+	flag.IntVar(&portStartPoint,"port-start",8999,"port start")
 
 	flag.Parse(os.Args)
 
@@ -129,17 +134,18 @@ func main() {
 	if err != nil {
 		panic(err)
 	}
-	
+
 	server := rpc.NewServer()
 
 	go func(){
-		server.Accept(man.NetListener(d.Listener()))
-		pid := []byte{}
+		pid := make([]byte,len(string(d.ID()))*2)
 		hex.Encode(pid,[]byte(d.ID()))
-
+		fmt.Printf("ID: %s\n",d.ID().Pretty())
 		server.Register(&Handler{
 			Relayer : "0x"+string(pid),
 		})
+		server.Accept(man.NetListener(d.Listener()))
+		
 	}()
 
 	for _,peer := range peers{
