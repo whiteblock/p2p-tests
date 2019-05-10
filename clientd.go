@@ -11,7 +11,7 @@ import (
 	"time"
 )
 
-func createDaemonClientPair(opts []libp2p.Option) (*p2pd.Daemon, *c.Client, func(), error) {
+func createDaemonClientPair(opts []libp2p.Option) (*p2pd.Daemon, *c.Client, func(), context.Context, error) {
 	ctx, _:= context.WithCancel(context.Background())
 
 	dAddr, _ := ma.NewMultiaddr(fmt.Sprintf("/ip4/%s/tcp/%d",bindIP,portStartPoint))
@@ -19,18 +19,18 @@ func createDaemonClientPair(opts []libp2p.Option) (*p2pd.Daemon, *c.Client, func
 
 	daemon, err := p2pd.NewDaemon(ctx, dAddr, "", opts ...)
 	if err != nil {
-		return nil, nil, nil, err
+		return nil, nil, nil, nil, err
 	}//daemon.Listener()
 	client, err := c.NewClient(daemon.Listener().Multiaddr(), cmaddr)
 	if err != nil {
-		return nil, nil, nil, err
+		return nil, nil, nil, nil, err
 	}
 
 	closer := func() {
 		_ = client.Close()
 		_ = daemon.Close()
 	}
-	return daemon, client, closer, nil
+	return daemon, client, closer, ctx, nil
 }
 
 func pubsub(daemon *p2pd.Daemon, pubsubRouter string, pubsubSign, pubsubSignStrict bool, gossipHearbeatInterval, gossipHeartBeatInitialDelay time.Duration)error{

@@ -45,8 +45,7 @@ func CreatePeerInfos(peers []string) ([]ps.PeerInfo,error) {
 		if err != nil {
 			return nil,err
 		}
-		test,err := ps.InfoFromP2pAddr(mAddr)
-		fmt.Printf("INFO: %#vn\n",test)
+		
 		pid,err := peer.IDB58Decode(rawPid)
 		if err != nil {
 			return nil,err

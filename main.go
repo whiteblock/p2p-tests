@@ -31,6 +31,7 @@ var (
 func main() {
 	log.SetFlags(log.LstdFlags | log.Llongfile)
 	logrus.SetFormatter(&logrus.JSONFormatter{})
+	logrus.SetLevel(logrus.DebugLevel)
 	flag := pflag.NewFlagSet("p2p", pflag.ExitOnError)
 
 	var rawPeers []string
@@ -129,7 +130,7 @@ func main() {
 	}
 
 	// gets the options to pass to the daemon
-	d, cl, closer, err := createDaemonClientPair(opts)
+	d, cl, closer, ctx, err := createDaemonClientPair(opts)
 	if err != nil {
 		panic(err)
 	}
@@ -160,7 +161,7 @@ func main() {
 		
 	}()
 
-	fmt.Println(d.Addrs())
+	fmt.Printf("DAEMON PEERLIST: %v\n", d.Addrs())
 
 	for _,peer := range peers{
 		err := cl.Connect(peer.ID,malist)
@@ -168,9 +169,23 @@ func main() {
 			panic(err)
 		}
 	}
+
+	dch, err := cl.Subscribe(ctx, "peepeepoopookaka")
+	if err != nil {
+		fmt.Println(err)
+	}
+	go func() {
+		for{
+			foo := <- dch
+			fmt.Printf("subscription: %#v \n", foo)
+			fmt.Printf("data: %s \n", string(foo.Data))
+			fmt.Println("topics: ", foo.TopicIDs)
+		}
+	}()
+	cl.Publish("peepeepoopookaka", []byte("doodoo"))
 	
-	fmt.Printf("%#v\n",*d)
-	fmt.Printf("%#v\n",*cl)
+	// fmt.Printf("%#v\n",*d)
+	// fmt.Printf("%#v\n",*cl)
 
 	defer closer()
 
