@@ -219,7 +219,7 @@ func main() {
 	}
 	
 
-	defer closer()
+	//defer closer()
 
 	/*testProtos := []string{"/test"}
 
