@@ -23,6 +23,7 @@ import (
 
 var (
 	portStartPoint int
+	bindIP string
 )
 
 func main() {
@@ -53,6 +54,7 @@ func main() {
 
 	flag.StringSliceVarP(&rawPeers,"peer","p",[]string{},"peers")
 	flag.IntVar(&portStartPoint,"port-start",8999,"port start")
+	flag.StringVar(&bindIP,"ip","127.0.0.1","ip address to bind on")
 
 	flag.Parse(os.Args)
 
