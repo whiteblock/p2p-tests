@@ -13,7 +13,7 @@ import (
 	"time"
 	"github.com/libp2p/go-libp2p"
 	logrus "github.com/sirupsen/logrus"
-	tmpps "github.com/libp2p/go-libp2p-peerstore/pstoremem"
+	//tmpps "github.com/libp2p/go-libp2p-peerstore/pstoremem"
 	man "github.com/multiformats/go-multiaddr-net"
 	ma "github.com/multiformats/go-multiaddr"
 	relay "github.com/libp2p/go-libp2p-circuit"
@@ -36,7 +36,8 @@ func main() {
 	logrus.SetLevel(logrus.DebugLevel)
 	flag := pflag.NewFlagSet("p2p", pflag.ExitOnError)
 
-	var rawPeers []string
+	//var rawPeers []string
+	var fileName string
 
 	identify.ClientVersion = "p2pd/0.1"
 	id := flag.String("id", "", "peer identity; private key file")
@@ -56,28 +57,24 @@ func main() {
 	hostAddrs := flag.String("hostAddrs", "", "comma separated list of multiaddrs the host should listen on")
 	announceAddrs := flag.String("announceAddrs", "", "comma separated list of multiaddrs the host should announce to the network")
 	noListen := flag.Bool("noListenAddrs", false, "sets the host to listen on no addresses")
-	peerStore := flag.String("peerstore", "", "peers to add to the daemon's peerstore")
+	//peerStore := flag.String("peerstore", "", "peers to add to the daemon's peerstore")
 
-	flag.StringSliceVarP(&rawPeers,"peer","p",[]string{},"peers")
+	//flag.StringSliceVarP(&rawPeers,"peer","p",[]string{},"peers")
 	flag.IntVar(&portStartPoint,"port-start",8999,"port start")
 	flag.Int64Var(&sendInterval,"send-interval",-1,"interval to send messages, -1 means don't send")
 	flag.StringVar(&bindIP,"ip","127.0.0.1","ip address to bind on")
-	flag.StringSliceVar(&maddrs, "maddr", []string{}, "addresses that daemon owns")
+	//flag.StringSliceVar(&maddrs, "maddr", []string{}, "addresses that daemon owns")
+	flag.StringVar(&fileName,"file","static-peers.json","file of the peers")
 
 	flag.Parse(os.Args)
 
-	peers,err := CreatePeerInfos(rawPeers)
+	peers,err := CreatePeerInfosFromFile(fileName)
 	if err != nil {
 		panic(err)
 	}
 
 	var opts []libp2p.Option
 
-	if *peerStore != "" {
-		pstore := tmpps.NewPeerstore()
-		logrus.Debug("Created the peerstore")
-		opts = append(opts, libp2p.Peerstore(pstore))
-	}
 
 	if *id != "" {
 		logrus.Debug("Generating ED25519 Key")
@@ -144,14 +141,6 @@ func main() {
 
 	server := rpc.NewServer()
 
-	var malist []ma.Multiaddr
-	for _, maddr := range maddrs {
-		l, err := ma.NewMultiaddr(maddr)
-		if err!=nil{
-			panic(err)
-		}
-		malist = append(malist, l)
-	}
 
 	go func(){
 		pid := make([]byte,len(string(d.ID()))*2)
@@ -166,8 +155,8 @@ func main() {
 
 	fmt.Printf("DAEMON PEERLIST: %v\n", d.Addrs())
 
-	for _,peer := range peers{
-		err := cl.Connect(peer.ID,malist)
+	for _,peer := range peers {
+		err := cl.Connect(peer.ID,peer.Addrs)
 		if err != nil {
 			panic(err)
 		}
@@ -217,26 +206,7 @@ func main() {
 			counter = 0
 		}
 	}
-	
 
-	//defer closer()
-
-	/*testProtos := []string{"/test"}
-
-	err = cl.NewStreamHandler(testProtos, func(info *c.StreamInfo, conn io.ReadWriteCloser) {
-		defer conn.Close()
-		rpcClient :=  rpc.NewClient(conn)
-		var reply interface{}
-		rpcClient.Call("peepeepoopookaka",nil,&reply)
-		fmt.Printf("REPLY IS %#v\n",reply)
-	})
-
-	if err != nil {
-		panic(err)
-	}
-
-	fmt.Printf("Daemon started \n")*/
-	
 	chanwait()
 
 }

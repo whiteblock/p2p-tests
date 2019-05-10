@@ -5,7 +5,9 @@ import (
 	"fmt"
 	"sync"
 	"os/signal"
+	"io/ioutil"
 	"strings"
+	"encoding/json"
 	peer "github.com/libp2p/go-libp2p-peer"
 	ma "github.com/multiformats/go-multiaddr"
 	ps "github.com/libp2p/go-libp2p-peerstore"
@@ -23,13 +25,6 @@ func chanwait() {
 	}()
 	end_waiter.Wait()
 }
-
-// func handleSignals() {
-// 	signals := make(chan os.Signal, 1)
-// 	signal.Notify(signals, syscall.SIGINT, syscall.SIGTERM)
-// 	<-signals
-// 	log.Println("signal received")
-// }
 
 func CreatePeerInfos(peers []string) ([]ps.PeerInfo,error) {
 	out := []ps.PeerInfo{}
@@ -55,6 +50,49 @@ func CreatePeerInfos(peers []string) ([]ps.PeerInfo,error) {
 			ID:pid,
 			Addrs: []ma.Multiaddr{mAddr},
 		})
+	}
+	return out,nil
+}
+
+type SerialPeerInfo struct {
+	ID 		string
+	MAddrs []string
+}
+
+func (spi SerialPeerInfo) Convert() (ps.PeerInfo,error) {
+	out := ps.PeerInfo{}
+	pid,err := peer.IDB58Decode(spi.ID)
+	if err != nil {
+		return ps.PeerInfo{},err
+	}
+	out.ID = pid
+	for _,maddrStr :=  range spi.MAddrs{
+		mAddr,err := ma.NewMultiaddr(maddrStr)
+		if err != nil {
+			return ps.PeerInfo{},err
+		}
+		out.Addrs = append(out.Addrs,mAddr)
+	}
+	return out,nil
+}
+
+func CreatePeerInfosFromFile(filename string) ([]ps.PeerInfo,error) {
+	res,err := ioutil.ReadFile(filename)
+	if err != nil {
+		return nil,err
+	}
+	var rawPeers []SerialPeerInfo
+	err = json.Unmarshal(res,&rawPeers)
+	if err != nil {
+		return nil,err
+	}
+	out := []ps.PeerInfo{}
+	for _,rawPeer := range rawPeers{
+		peer, err := rawPeer.Convert()
+		if err != nil {
+			return nil,err
+		}
+		out = append(out,peer)
 	}
 	return out,nil
 }
