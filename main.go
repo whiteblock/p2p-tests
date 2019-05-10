@@ -133,7 +133,7 @@ func main() {
 	}
 
 	// gets the options to pass to the daemon
-	d, cl, closer, ctx, err := createDaemonClientPair(opts)
+	d, cl, _, ctx, err := createDaemonClientPair(opts)
 	if err != nil {
 		panic(err)
 	}
@@ -198,7 +198,7 @@ func main() {
 	}()
  	var counter int64
 
-	for sendInterval > 0 { //infinitely loop if > 0
+	for sendInterval > 0 || counter == 0 { //infinitely loop if > 0
 		out,err := json.Marshal(map[string]interface{}{
 			"id":counter,
 			"jsonrpc":"2.0",
