@@ -10,6 +10,7 @@ import (
 	"strings"
 	"crypto/rand"
 	"github.com/libp2p/go-libp2p"
+	logrus "github.com/sirupsen/logrus"
 	man "github.com/multiformats/go-multiaddr-net"
 	ma "github.com/multiformats/go-multiaddr"
 	relay "github.com/libp2p/go-libp2p-circuit"
@@ -21,6 +22,7 @@ import (
 
 func main() {
 	log.SetFlags(log.LstdFlags | log.Llongfile)
+	logrus.SetFormatter(&logrus.JSONFormatter{})
 	flag := pflag.NewFlagSet("p2p", pflag.ExitOnError)
 
 	var rawPeers []string

@@ -3,6 +3,7 @@ package main
 import (
 	"fmt"
 	"time"
+	log "github.com/sirupsen/logrus"
 	// "encoding/json"
 )
 
@@ -30,16 +31,18 @@ type Handler struct {
 
 func (h *Handler) Execute(req Request, res *Response) (err error) {
 	
-	fmt.Printf("Received Request: %#v\n",req)
-
-	res.Message = Message{
-		Origin:"0x0",
-		Destination: "0x0",
-		Relayer: h.Relayer,
-		Timestamp: time.Now(),
-		Data: "peepeepoopookaka",
-		MessageID: "0x0",
-		Nonce: 1,
-	}
+	fmt.Printf("Relaying Request: %#v\n",req)
+	log.WithFields(log.Fields{
+	    "origin":req.Message.Origin,
+	    "destination":req.Message.Destination,
+	    "relayer":req.Message.Relayer,
+	    "timestamp":req.Message.Timestamp,
+	    "data":req.Message.Data,
+	    "messageid":req.Message.MessageID,
+	    "nonce":req.Message.Nonce,
+	  }).Info("Received Message")
+	
+	res.Message = req.Message
+	res.Message.Relayer = h.Relayer
 	return nil
 }
