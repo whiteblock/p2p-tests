@@ -84,7 +84,8 @@ func CreatePeerInfosFromFile(filename string) ([]ps.PeerInfo,error) {
 	var rawPeers []SerialPeerInfo
 	err = json.Unmarshal(res,&rawPeers)
 	if err != nil {
-		return nil,err
+		log.Println(err)
+		return nil,nil
 	}
 	out := []ps.PeerInfo{}
 	for _,rawPeer := range rawPeers{
