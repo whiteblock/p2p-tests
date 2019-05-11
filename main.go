@@ -10,6 +10,7 @@ import (
 	//"net/rpc"
 	"strings"
 	"crypto/rand"
+	mrand "math/rand"
 	"encoding/hex"
 	"encoding/json"
 	"time"
@@ -43,6 +44,7 @@ func main() {
 
 	identify.ClientVersion = "p2pd/0.1"
 	id := flag.String("id", "", "peer identity; private key file")
+	seed := flag.Int64("seed", 0, "seed to generate peer identity deterministically")
 	connMgr := flag.Bool("connManager", false, "Enables the Connection Manager")
 	connMgrLo := flag.Int("connLo", 256, "Connection Manager Low Water mark")
 	connMgrHi := flag.Int("connHi", 512, "Connection Manager High Water mark")
@@ -78,9 +80,15 @@ func main() {
 	var opts []libp2p.Option
 
 
-	if *id != "" {
+	if *id == "" {
 		logrus.Debug("Generating ED25519 Key")
-		priv, _, err := crypto.GenerateEd25519Key(rand.Reader)
+		var r io.Reader
+		if *seed == int64(0) {
+			r = rand.Reader
+		} else {
+			r = mrand.New(mrand.NewSource(*seed))
+		}
+		priv, _, err := crypto.GenerateEd25519Key(r)
 		if err != nil {
 			panic(err)
 		}
