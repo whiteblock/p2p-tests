@@ -34,6 +34,8 @@ var (
 )
 
 func main() {
+	var generateOnly bool
+
 	log.SetFlags(log.LstdFlags | log.Llongfile)
 	logrus.SetFormatter(&logrus.JSONFormatter{})
 	logrus.SetLevel(logrus.DebugLevel)
@@ -45,6 +47,7 @@ func main() {
 	identify.ClientVersion = "p2pd/0.1"
 	id := flag.String("id", "", "peer identity; private key file")
 	seed := flag.Int64("seed", 0, "seed to generate peer identity deterministically")
+	flag.BoolVar(&generateOnly,"generate-only",false,"generate ")
 	connMgr := flag.Bool("connManager", false, "Enables the Connection Manager")
 	connMgrLo := flag.Int("connLo", 256, "Connection Manager Low Water mark")
 	connMgrHi := flag.Int("connHi", 512, "Connection Manager High Water mark")
@@ -81,7 +84,6 @@ func main() {
 
 
 	if *id == "" {
-		logrus.Debug("Generating ED25519 Key")
 		var r io.Reader
 		if *seed == int64(0) {
 			r = rand.Reader
@@ -154,7 +156,9 @@ func main() {
 		"pid":d.ID(),
 		"addrs":d.Addrs(),
 	}).Info("Created a Daemon")
-
+	if generateOnly {
+		os.Exit(0)
+	}
 
 	err = pubsub(d, *pubsubRouter, *pubsubSign, *pubsubSignStrict, *gossipsubHeartbeatInterval, *gossipsubHeartbeatInitialDelay)
 	if err != nil {
