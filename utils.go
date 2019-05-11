@@ -3,7 +3,6 @@ package main
 import (
 	"os"
 	"fmt"
-	"log"
 	"sync"
 	"os/signal"
 	"io/ioutil"
