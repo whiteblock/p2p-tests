@@ -4,6 +4,7 @@ import (
 	"os"
 	"fmt"
 	"sync"
+	"log"
 	"os/signal"
 	"io/ioutil"
 	"strings"
