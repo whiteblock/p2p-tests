@@ -8,4 +8,4 @@ RUN go get || true
 
 RUN go build
 
-ENTRYPOINT ["/record/record"]
+ENTRYPOINT ["/bin/bash"]
