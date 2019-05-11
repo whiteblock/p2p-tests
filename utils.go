@@ -79,7 +79,7 @@ func (spi SerialPeerInfo) Convert() (ps.PeerInfo,error) {
 func CreatePeerInfosFromFile(filename string) ([]ps.PeerInfo,error) {
 	res,err := ioutil.ReadFile(filename)
 	if err != nil {
-		return nil,err
+		return nil,nil
 	}
 	var rawPeers []SerialPeerInfo
 	err = json.Unmarshal(res,&rawPeers)
