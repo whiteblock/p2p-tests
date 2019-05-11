@@ -2,7 +2,6 @@ package main
 
 import (
 	"os"
-	"log"
 	"fmt"
 	"log"
 	"sync"

@@ -6,7 +6,8 @@ import (
 	"fmt"
 	"log"
 	"github.com/spf13/pflag"
-	"net/rpc"
+	"io/ioutil"
+	//"net/rpc"
 	"strings"
 	"crypto/rand"
 	"encoding/hex"
@@ -15,7 +16,7 @@ import (
 	"github.com/libp2p/go-libp2p"
 	logrus "github.com/sirupsen/logrus"
 	//tmpps "github.com/libp2p/go-libp2p-peerstore/pstoremem"
-	man "github.com/multiformats/go-multiaddr-net"
+	//man "github.com/multiformats/go-multiaddr-net"
 	ma "github.com/multiformats/go-multiaddr"
 	relay "github.com/libp2p/go-libp2p-circuit"
 	crypto "github.com/libp2p/go-libp2p-crypto"
@@ -135,28 +136,44 @@ func main() {
 	if err != nil {
 		panic(err)
 	}
+	clientPID,clientAddrs,_ := cl.Identify()
+	logrus.WithFields(logrus.Fields{
+		"pid":clientPID,
+		"addrs":clientAddrs,
+	}).Info("Created a client")
+
+	logrus.WithFields(logrus.Fields{
+		"pid":d.ID(),
+		"addrs":d.Addrs(),
+	}).Info("Created a Daemon")
+
+
 	err = pubsub(d, *pubsubRouter, *pubsubSign, *pubsubSignStrict, *gossipsubHeartbeatInterval, *gossipsubHeartbeatInitialDelay)
 	if err != nil {
 		panic(err)
 	}
 
-	server := rpc.NewServer()
+	//server := rpc.NewServer()
 
-
-	go func(){
-		pid := make([]byte,len(string(d.ID()))*2)
-		hex.Encode(pid,[]byte(d.ID()))
-		fmt.Printf("ID: %s\n",d.ID().Pretty())
+	/*pid := make([]byte,len(string(d.ID()))*2)
+	hex.Encode(pid,[]byte(d.ID()))*/
+	fmt.Printf("ID: %s\n",d.ID().Pretty())
+	/*go func(){
+		
 		server.Register(&Handler{
 			Relayer : "0x"+string(pid),
 		})
 		server.Accept(man.NetListener(d.Listener()))
 		
-	}()
+	}()*/
 
 	fmt.Printf("DAEMON PEERLIST: %v\n", d.Addrs())
 
 	for _,peer := range peers {
+		logrus.WithFields(logrus.Fields{
+					"peer":peer.ID.Pretty(),
+					"addrs":peer.Addrs,
+				}).Info("Connecting to peer")
 		err := cl.Connect(peer.ID,peer.Addrs)
 		if err != nil {
 			panic(err)
@@ -215,10 +232,21 @@ func main() {
 
 	err = cl.NewStreamHandler(testProtos, func(info *c.StreamInfo, conn io.ReadWriteCloser) {
 		defer conn.Close()
-		rpcClient :=  rpc.NewClient(conn)
+		logrus.WithFields(logrus.Fields{
+			"peer":info.Peer.Pretty(),
+			"addr":info.Addr,
+			"proto":info.Proto,
+		}).Info("Received a stream")
+
+		in,err :=  ioutil.ReadAll(conn)
+		if err != nil {
+			logrus.WithFields(logrus.Fields{"err":err}).Info("Error getting data")
+		}
+		logrus.WithFields(logrus.Fields{"data":in}).Info("Got some data")
+		/*rpcClient :=  rpc.NewClient(conn)
 		var reply interface{}
-		rpcClient.Call("peepeepoopookaka",nil,&reply)
-		fmt.Printf("REPLY IS %#v\n",reply)
+		rpcClient.Call("jargon",nil,&reply)
+		fmt.Printf("REPLY IS %#v\n",reply)*/
 		
 	})
 
