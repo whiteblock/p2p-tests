@@ -2,12 +2,14 @@ package main
 
 import (
 	"os"
+	"log"
 	"fmt"
 	"sync"
 	"os/signal"
 	"io/ioutil"
 	"strings"
 	"encoding/json"
+	logrus "github.com/sirupsen/logrus"
 	peer "github.com/libp2p/go-libp2p-peer"
 	ma "github.com/multiformats/go-multiaddr"
 	ps "github.com/libp2p/go-libp2p-peerstore"
@@ -73,6 +75,9 @@ func (spi SerialPeerInfo) Convert() (ps.PeerInfo,error) {
 		}
 		out.Addrs = append(out.Addrs,mAddr)
 	}
+	logrus.WithFields(logrus.Fields{
+			"peer":out,
+	}).Info("Parsed peer...")
 	return out,nil
 }
 
@@ -89,6 +94,11 @@ func CreatePeerInfosFromFile(filename string) ([]ps.PeerInfo,error) {
 	}
 	out := []ps.PeerInfo{}
 	for _,rawPeer := range rawPeers{
+		logrus.WithFields(logrus.Fields{
+				"ID":rawPeer.ID,
+				"MAddrs":rawPeer.MAddrs,
+		}).Info("Parsing peer...")
+
 		peer, err := rawPeer.Convert()
 		if err != nil {
 			return nil,err
