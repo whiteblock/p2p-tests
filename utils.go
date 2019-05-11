@@ -56,12 +56,12 @@ func CreatePeerInfos(peers []string) ([]ps.PeerInfo,error) {
 	return out,nil
 }
 
-type SerialPeerInfo struct {
-	ID 		string
-	MAddrs []string
+type serialPeerInfo struct {
+	ID     string   `json:"pid"`
+	MAddrs []string `json:"addrs"`
 }
 
-func (spi SerialPeerInfo) Convert() (ps.PeerInfo,error) {
+func (spi serialPeerInfo) Convert() (ps.PeerInfo,error) {
 	out := ps.PeerInfo{}
 	pid,err := peer.IDB58Decode(spi.ID)
 	if err != nil {
@@ -86,7 +86,7 @@ func CreatePeerInfosFromFile(filename string) ([]ps.PeerInfo,error) {
 	if err != nil {
 		return nil,nil
 	}
-	var rawPeers []SerialPeerInfo
+	var rawPeers []serialPeerInfo
 	err = json.Unmarshal(res,&rawPeers)
 	if err != nil {
 		log.Println(err)
