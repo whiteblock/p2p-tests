@@ -165,19 +165,8 @@ func main() {
 		panic(err)
 	}
 
-	//server := rpc.NewServer()
-
-	/*pid := make([]byte,len(string(d.ID()))*2)
-	hex.Encode(pid,[]byte(d.ID()))*/
 	fmt.Printf("ID: %s\n",d.ID().Pretty())
-	/*go func(){
-		
-		server.Register(&Handler{
-			Relayer : "0x"+string(pid),
-		})
-		server.Accept(man.NetListener(d.Listener()))
-		
-	}()*/
+
 
 	fmt.Printf("DAEMON PEERLIST: %v\n", d.Addrs())
 
@@ -185,8 +174,16 @@ func main() {
 		logrus.WithFields(logrus.Fields{
 					"peer":peer.ID.Pretty(),
 					"addrs":peer.Addrs,
-				}).Info("Connecting to peer")
-		err := cl.Connect(peer.ID,peer.Addrs)
+				}).Info("Dialing peer")
+		for i := 0; i < 10; i++ {
+			err = cl.Connect(peer.ID,peer.Addrs)
+			if err == nil {
+
+			}else{
+				logrus.WithFields(logrus.Fields{"timeout":"500ms"}).Warn("Failed to connect")
+			}
+			time.Sleep(500*time.Millisecond)
+		}
 		if err != nil {
 			panic(err)
 		}
@@ -254,12 +251,7 @@ func main() {
 		if err != nil {
 			logrus.WithFields(logrus.Fields{"err":err}).Info("Error getting data")
 		}
-		logrus.WithFields(logrus.Fields{"data":in}).Info("Got some data")
-		/*rpcClient :=  rpc.NewClient(conn)
-		var reply interface{}
-		rpcClient.Call("jargon",nil,&reply)
-		fmt.Printf("REPLY IS %#v\n",reply)*/
-		
+		logrus.WithFields(logrus.Fields{"data":in}).Info("Got some data")		
 	})
 
 	if err != nil {
