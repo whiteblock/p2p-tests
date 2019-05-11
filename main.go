@@ -1,6 +1,7 @@
 package main
 
 import (
+	"io"
 	"os"
 	"fmt"
 	"log"
@@ -19,7 +20,7 @@ import (
 	relay "github.com/libp2p/go-libp2p-circuit"
 	crypto "github.com/libp2p/go-libp2p-crypto"
 	connmgr "github.com/libp2p/go-libp2p-connmgr"
-	//c "github.com/libp2p/go-libp2p-daemon/p2pclient"
+	c "github.com/libp2p/go-libp2p-daemon/p2pclient"
 	"github.com/libp2p/go-libp2p/p2p/protocol/identify"
 )
 
@@ -130,7 +131,7 @@ func main() {
 	}
 
 	// gets the options to pass to the daemon
-	d, cl, _, ctx, err := createDaemonClientPair(opts)
+	d, cl, closer, ctx, err := createDaemonClientPair(opts)
 	if err != nil {
 		panic(err)
 	}
@@ -186,27 +187,44 @@ func main() {
 		}
 	}()
  	var counter int64
+ 	go func(){
+ 		for sendInterval > 0 || counter == 0 { //infinitely loop if > 0
+			out,err := json.Marshal(map[string]interface{}{
+				"id":counter,
+				"jsonrpc":"2.0",
+				"params":[]string{"foo","bar","foofoo","foobar","barfoo","barbar"},
+				"method":"far",
+			})
+			logrus.WithFields(logrus.Fields{
+					"sending":string(out),
+					"error":err,
+				}).Info("Sending a message")
+			cl.Publish("jargon", out)
 
-	for sendInterval > 0 || counter == 0 { //infinitely loop if > 0
-		out,err := json.Marshal(map[string]interface{}{
-			"id":counter,
-			"jsonrpc":"2.0",
-			"params":[]string{"foo","bar","foofoo","foobar","barfoo","barbar"},
-			"method":"far",
-		})
-		logrus.WithFields(logrus.Fields{
-				"sending":string(out),
-				"error":err,
-			}).Info("Sending a message")
-		cl.Publish("jargon", out)
-
-		counter++
-		time.Sleep(time.Duration(sendInterval)*time.Microsecond)
-		if counter > 1000000000 {
-			counter = 0
+			counter++
+			time.Sleep(time.Duration(sendInterval)*time.Microsecond)
+			if counter > 1000000000 {
+				counter = 0
+			}
 		}
-	}
+ 	}()
+	
+	defer closer()
 
+	testProtos := []string{"/test"}
+
+	err = cl.NewStreamHandler(testProtos, func(info *c.StreamInfo, conn io.ReadWriteCloser) {
+		defer conn.Close()
+		rpcClient :=  rpc.NewClient(conn)
+		var reply interface{}
+		rpcClient.Call("peepeepoopookaka",nil,&reply)
+		fmt.Printf("REPLY IS %#v\n",reply)
+		
+	})
+
+	if err != nil {
+		panic(err)
+	}
 	chanwait()
 
 }
