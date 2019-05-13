@@ -175,7 +175,7 @@ func main() {
 					"peer":peer.ID.Pretty(),
 					"addrs":peer.Addrs,
 				}).Info("Dialing peer")
-		for i := 0; i < 20; i++ {
+		for i := 0; i < 30; i++ {
 			err = cl.Connect(peer.ID,peer.Addrs)
 			if err == nil {
 
