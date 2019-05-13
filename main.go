@@ -15,6 +15,7 @@ import (
 	"encoding/json"
 	"time"
 	"github.com/libp2p/go-libp2p"
+	"github.com/whiteblock/go.uuid"
 	logrus "github.com/sirupsen/logrus"
 	//tmpps "github.com/libp2p/go-libp2p-peerstore/pstoremem"
 	//man "github.com/multiformats/go-multiaddr-net"
@@ -32,6 +33,14 @@ var (
 	maddrs []string
 	sendInterval int64
 )
+
+
+//GetUUIDString generates a new UUID
+func GetUUIDString() (string, error) {
+	uid, err := uuid.NewV4()
+	return uid.String(), err
+}
+
 
 func main() {
 	var generateOnly bool
@@ -215,17 +224,21 @@ func main() {
  	var counter int64
  	go func(){
  		for sendInterval > 0 || counter == 0 { //infinitely loop if > 0
-			out,err := json.Marshal(map[string]interface{}{
+ 			id,err := GetUUIDString()
+ 			if err != nil {
+ 				logrus.WithFields(logrus.Fields{"err":err}).Error("Error getting uuid")
+ 			}
+			/*out,err := json.Marshal(map[string]interface{}{
 				"id":counter,
 				"jsonrpc":"2.0",
-				"params":[]string{"foo","bar","foofoo","foobar","barfoo","barbar"},
+				"params":[]string{id},
 				"method":"far",
-			})
+			})*/
 			logrus.WithFields(logrus.Fields{
-					"sending":string(out),
+					"sending":id,
 					"error":err,
 				}).Info("Sending a message")
-			cl.Publish("jargon", out)
+			cl.Publish("jargon", []byte(id))
 
 			counter++
 			time.Sleep(time.Duration(sendInterval)*time.Microsecond)
@@ -260,3 +273,5 @@ func main() {
 	chanwait()
 
 }
+
+
