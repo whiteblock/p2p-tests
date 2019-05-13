@@ -175,14 +175,14 @@ func main() {
 					"peer":peer.ID.Pretty(),
 					"addrs":peer.Addrs,
 				}).Info("Dialing peer")
-		for i := 0; i < 30; i++ {
+		for i := 0; i < 2000; i++ {
 			err = cl.Connect(peer.ID,peer.Addrs)
 			if err == nil {
 
 			}else{
 				logrus.WithFields(logrus.Fields{"timeout":"2s"}).Warn("Failed to connect")
 			}
-			time.Sleep(2*time.Second)
+			time.Sleep(200*time.Millisecond)
 		}
 		if err != nil {
 			panic(err)
