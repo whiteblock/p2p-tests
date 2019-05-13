@@ -228,17 +228,17 @@ func main() {
  			if err != nil {
  				logrus.WithFields(logrus.Fields{"err":err}).Error("Error getting uuid")
  			}
-			/*out,err := json.Marshal(map[string]interface{}{
-				"id":counter,
-				"jsonrpc":"2.0",
-				"params":[]string{id},
-				"method":"far",
-			})*/
+ 			obj := map[string]interface{}{
+				"id":id,
+				"nonce":counter,
+				"timestamp":time.Now().UnixNano(),
+			}
+			out,err := json.Marshal(obj)
 			logrus.WithFields(logrus.Fields{
-					"sending":id,
+					"sending":obj,
 					"error":err,
 				}).Info("Sending a message")
-			cl.Publish("jargon", []byte(id))
+			cl.Publish("jargon", out)
 
 			counter++
 			time.Sleep(time.Duration(sendInterval)*time.Microsecond)
