@@ -181,13 +181,13 @@ func main() {
 
 	for _,peer := range peers {
 		logrus.WithFields(logrus.Fields{
-					"peer":peer.ID.Pretty(),
-					"addrs":peer.Addrs,
-				}).Info("Dialing peer")
+			"peer":peer.ID.Pretty(),
+			"addrs":peer.Addrs,
+		}).Info("Dialing peer")
 		for i := 0; i < 2000; i++ {
 			err = cl.Connect(peer.ID,peer.Addrs)
 			if err == nil {
-
+				break
 			}else{
 				logrus.WithFields(logrus.Fields{"timeout":"200ms"}).Warn("Failed to connect")
 			}
@@ -273,5 +273,3 @@ func main() {
 	chanwait()
 
 }
-
-
