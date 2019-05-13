@@ -180,7 +180,7 @@ func main() {
 			if err == nil {
 
 			}else{
-				logrus.WithFields(logrus.Fields{"timeout":"2s"}).Warn("Failed to connect")
+				logrus.WithFields(logrus.Fields{"timeout":"200ms"}).Warn("Failed to connect")
 			}
 			time.Sleep(200*time.Millisecond)
 		}
