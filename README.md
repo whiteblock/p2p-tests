@@ -21,6 +21,9 @@ This document is a work in progress and will be updated accordingly as we progre
 Tests will be conducted using Whiteblock's [Genesis(www.github.com/whiteblock/genesis)] testing framework in accordance with the proposed scope of work outlined within this document. 
 Libp2p will be tested using our own custom client located within this repo. The Plumtree implementation is natively supported within the Genesis framework.
 
+## Network Topology 
+![Network Topology](/topology.png)
+
 ## Test Procedure
 
 Per test case:
