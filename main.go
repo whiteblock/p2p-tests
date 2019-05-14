@@ -218,6 +218,7 @@ func main() {
 				"topicIDs":msg.TopicIDs,
 				"signature":hex.EncodeToString(msg.Signature),
 				"key":hex.EncodeToString(msg.Key),
+				"timestamp":time.Now().UnixNano(),
 			}).Info("Received a message")
 		}
 	}()
