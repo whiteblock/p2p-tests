@@ -32,6 +32,7 @@ var (
 	bindIP string
 	maddrs []string
 	sendInterval int64
+	payloadSize int64
 )
 
 
@@ -40,7 +41,6 @@ func GetUUIDString() (string, error) {
 	uid, err := uuid.NewV4()
 	return uid.String(), err
 }
-
 
 func main() {
 	var generateOnly bool
@@ -79,6 +79,7 @@ func main() {
 	flag.IntVar(&portStartPoint,"port-start",8999,"port start")
 	flag.Int64Var(&sendInterval,"send-interval",-1,"interval to send messages, -1 means don't send")
 	flag.StringVar(&bindIP,"ip","127.0.0.1","ip address to bind on")
+	flag.Int64Var(&payloadSize,"payload-size",-1,"target size for the payload")
 	//flag.StringSliceVar(&maddrs, "maddr", []string{}, "addresses that daemon owns")
 	flag.StringVar(&fileName,"file","static-peers.json","file of the peers")
 
@@ -224,6 +225,21 @@ func main() {
 	}()
  	var counter int64
  	go func(){
+ 		mrand.Seed(time.Now().UnixNano())
+		testOut,_ := json.Marshal(map[string]interface{}{
+			"id":id,
+			"nonce":fmt.Sprintf("%.10d",counter),
+			"timestamp":time.Now().UnixNano(),
+			"payload":"",
+		})
+		var additionalPayload string
+		if payloadSize > int64(len(testOut)) {
+			payloadBuff := make([]byte,payloadSize - int64(len(testOut)))
+			mrand.Read(payloadBuff)
+			additionalPayload = hex.EncodeToString(payloadBuff)
+		}
+		
+
  		for sendInterval > 0 || counter == 0 { //infinitely loop if > 0
  			id,err := GetUUIDString()
  			if err != nil {
@@ -231,10 +247,12 @@ func main() {
  			}
  			obj := map[string]interface{}{
 				"id":id,
-				"nonce":counter,
+				"nonce":fmt.Sprintf("%.10d",counter),
 				"timestamp":time.Now().UnixNano(),
+				"payload":additionalPayload,
 			}
 			out,err := json.Marshal(obj)
+
 			logrus.WithFields(logrus.Fields{
 					"sending":obj,
 					"error":err,
