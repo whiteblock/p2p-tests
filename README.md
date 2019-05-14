@@ -10,7 +10,7 @@ analyzing the following protocols:
     - Floodsub (libp2p)
     - Plumtree (Artemis)
 
-This work began in early 2018 in collaboration with between Whiteblock and the [Eth Research team](https://github.com/ethresearch/sharding-p2p-poc).
+This work began in early 2018 in collaboration with between Whiteblock and the [ETH Research team](https://github.com/ethresearch/sharding-p2p-poc).
 
 Please reference [this document](https://notes.ethereum.org/s/ByYhlJBs7) for further details pertaining to this initial test plan.
 
