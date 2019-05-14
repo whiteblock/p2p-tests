@@ -4,11 +4,11 @@
 ## Overview
 
 The following tests are designed to observe and measure the performance of various protocols 
-responsible for the dissemination of messages within the network. Within these tests, we will 
-analyzing the following protocols: 
-    - Gossipsub (libp2p)
-    - Floodsub (libp2p)
-    - Plumtree (Artemis)
+responsible for the dissemination of messages within the network. Within these tests,we will analyzing the following protocols: 
+
+    * Gossipsub (libp2p)
+    * Floodsub (libp2p)
+    * Plumtree (Artemis)
 
 This work began in early 2018 in collaboration with between Whiteblock and the [ETH Research team](https://github.com/ethresearch/sharding-p2p-poc).
 
@@ -18,11 +18,18 @@ This document is a work in progress and will be updated accordingly as we progre
 
 ## Test Methodology
 
-Tests will be conducted using Whiteblock's [Genesis(www.github.com/whiteblock/genesis)] testing framework in accordance with the proposed scope of work outlined within this document. 
+Tests will be conducted using Whiteblock's [Genesis](www.github.com/whiteblock/genesis) testing framework in accordance with the proposed scope of work outlined within this document. 
 Libp2p will be tested using our own custom client located within this repo. The Plumtree implementation is natively supported within the Genesis framework.
 
 ## Network Topology 
 ![Network Topology](/topology.png)
+
+Within most topologies, peering with every other node within the network is ineffective and likely impossible. Within a live, global network, we can assume that
+nodes will be organized according to the topology illustrated within the above diagram. 
+
+For example, a (cluster specific) node within Cluster 1 may be peered with N number of nodes within its own cluster, however, based on proximity, certain nodes on the edge of this cluster may also be peered with nodes within Cluster 2 (inter cluster nodes). If Node X within Cluster 1 would like to transmit a message to Node Y within Cluster 4, these messages must propogate through each consecutive cluster in order to reach its destination. 
+
+While this topology may present an oversimplification, within most cases, we can expect the results to be reflective of real-world performance. As we establish an appropriate dataset that is indicative of baseline performance, we can develop additional test series' and cases for future test phases. 
 
 ## Test Procedure
 
