@@ -1,5 +1,7 @@
 #!/bin/bash
-  
+
+export NO_PRETTY=1
+
 n=20
 
 wb build -b libp2p-test -n $n -m 0 -c 0 -y
