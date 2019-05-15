@@ -6,7 +6,7 @@ export NO_PRETTY=1
 log(){
 	for ((i=0;i<$1;i++))
 	do
-		wb get log $i > "./${2}/node${i}.log"
+		wb get log $i > ".data/${2}/node${i}.log"
 	done
 }
 
