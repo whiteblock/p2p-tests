@@ -30,6 +30,8 @@ For example, a (cluster specific) node within Cluster 1 may be peered with N num
 
 While this topology may present an oversimplification, within most cases, we can expect the results to be reflective of real-world performance. As we establish an appropriate dataset that is indicative of baseline performance, we can develop additional test series' and cases for future test phases. 
 
+Since peer discovery is outside the scope of work for this test phase, peering within the client implementation presented within this repository is handled statically. 
+
 ## Client Behavior
 Nodes within the network will be running the client application included within this repo. This client application is responsible for constructing or relaying messages, interpreting these messages, outputting this data to a log in accordance with the defined message struct, and then relaying those messages according to the rules defined by the pusub router (floodsub, gossipsub)
 
