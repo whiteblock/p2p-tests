@@ -24,7 +24,7 @@ INTERVAL=7812
 #SERIES6: bandwidth
 #a
 wb build -b libp2p-test -n $NODES -m 0 -c 0 -y -o"senders=$SENDERS" -o"payloadSize=$SIZE" -o"connections=$CONNS" -o"interval=$INTERVAL" -o="pubsubRouter=$psr"
-wb netconfig all -b 50mb
+wb netconfig all -b 50
 
 wait_for_results
 wb netconfig off
@@ -33,7 +33,7 @@ log $NODES series6a
 
 #b
 wb build -b libp2p-test -n $NODES -m 0 -c 0 -y -o"senders=$SENDERS" -o"payloadSize=$SIZE" -o"connections=$CONNS" -o"interval=$INTERVAL" -o="pubsubRouter=$psr"
-wb netconfig all -b 250mb
+wb netconfig all -b 250
 
 wait_for_results
 wb netconfig off
@@ -42,7 +42,7 @@ log $NODES series6b
 
 #c
 wb build -b libp2p-test -n $NODES -m 0 -c 0 -y -o"senders=$SENDERS" -o"payloadSize=$SIZE" -o"connections=$CONNS" -o"interval=$INTERVAL" -o="pubsubRouter=$psr"
-wb netconfig all -b 750mb
+wb netconfig all -b 750
 
 wait_for_results
 wb netconfig off
