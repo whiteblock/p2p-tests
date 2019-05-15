@@ -4,17 +4,18 @@ import json
 import logging
 from datetime import datetime, timedelta
 
-def totimestamp(dt, epoch=datetime(1970,1,1)):
-    dt = datetime.strptime(dt, '%Y-%m-%dT%H:%M:%SZ')
-    td = dt - epoch
-#     return td.total_seconds()
-    return (td.microseconds + (td.seconds + td.days * 86400) * 10**6) / 10**6 
+def writeFile(data):
+    f= open("aggregatedTimeData.txt","a+")
+    f.write(str(data))
+    f.close()
 
 def getTime(rxlist):
+    data = {}
     for i in range(len(rxlist)):
+        msgid = rxlist[i]['data']['id']
         time = rxlist[i]['timestamp'] - rxlist[i]['data']['timestamp']
-        print("message: " + rxlist[i]['data']['id'])
-        print("time from send to receive: " + str(time/1000000000))
+        data[msgid]= str(time/1000000000)
+    return data
 
 def getMsgType(msg):
     print(msg)
@@ -39,16 +40,15 @@ def parseMsgType(msgList, index):
             continue
     lRx[index] = Rx
     lSn[index] = Sn
-    
 
-dirname = "./data/"
+dirname = "./data/test3/"
 
 l = [[]]*100
 lSn = [[]]*100
 lRx = [[]]*100
 
 for filename in os.listdir(dirname):
-    if filename.endswith(".txt"):
+    if filename.endswith(".log"):
         i = re.findall(r'\d+', filename)
         with open(dirname + filename, "r") as f:
             l[int(i[0])] = list(f)
@@ -60,5 +60,4 @@ for i in range(len(l)):
     parseMsgType(l[i][:], i)
 
 for i in range(len(lRx)):
-    print("node" + str(i))
-    getTime(lRx[i])
+    writeFile(getTime(lRx[i]))
