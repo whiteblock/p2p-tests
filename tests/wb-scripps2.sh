@@ -21,81 +21,80 @@ SIZE=200
 CONNS=10
 INTERVAL=7812
 
-#SERIES 1 Control
+#SERIES6: bandwidth
 #a
 wb build -b libp2p-test -n $NODES -m 0 -c 0 -y -o"senders=$SENDERS" -o"payloadSize=$SIZE" -o"connections=$CONNS" -o"interval=$INTERVAL"
+wb netconfig all -b 50mb
 
 wait_for_results
 
-log $NODES series1a
+log $NODES series6a
 
 #b
 wb build -b libp2p-test -n $NODES -m 0 -c 0 -y -o"senders=$SENDERS" -o"payloadSize=$SIZE" -o"connections=$CONNS" -o"interval=$INTERVAL"
+wb netconfig all -b 250mb
 
 wait_for_results
 
-log $NODES series1b
+log $NODES series6b
 
 #c
 wb build -b libp2p-test -n $NODES -m 0 -c 0 -y -o"senders=$SENDERS" -o"payloadSize=$SIZE" -o"connections=$CONNS" -o"interval=$INTERVAL"
+wb netconfig all -b 750mb
 
 wait_for_results
 
-log $NODES series1c
+log $NODES series6c
 
 
-#Series 2: Message Size
+#Series 7: Network Latency
 
-SIZE=500
 #a
 wb build -b libp2p-test -n $NODES -m 0 -c 0 -y -o"senders=$SENDERS" -o"payloadSize=$SIZE" -o"connections=$CONNS" -o"interval=$INTERVAL"
+wb netconfig all -d 10
 
 wait_for_results
 
-log $NODES series2a
-
-SIZE=500000
-#b
-wb build -b libp2p-test -n $NODES -m 0 -c 0 -y -o"senders=$SENDERS" -o"payloadSize=$SIZE" -o"connections=$CONNS" -o"interval=$INTERVAL"
-
-wait_for_results
-
-log $NODES series2b
-
-SIZE=500000000
-#c
-wb build -b libp2p-test -n $NODES -m 0 -c 0 -y -o"senders=$SENDERS" -o"payloadSize=$SIZE" -o"connections=$CONNS" -o"interval=$INTERVAL"
-
-wait_for_results
-
-log $NODES series2c
-
-#Series 3: Senders
-
-SIZE=200
-NODES=100
-SENDERS=10
-#a
-wb build -b libp2p-test -n $NODES -m 0 -c 0 -y -o"senders=$SENDERS" -o"payloadSize=$SIZE" -o"connections=$CONNS" -o"interval=$INTERVAL"
-
-wait_for_results
-
-log $NODES series3a
-
-SENDERS=40
+log $NODES series7a
 
 #b
 wb build -b libp2p-test -n $NODES -m 0 -c 0 -y -o"senders=$SENDERS" -o"payloadSize=$SIZE" -o"connections=$CONNS" -o"interval=$INTERVAL"
+wb netconfig all -d 100
 
 wait_for_results
 
-log $NODES series3b
-
-SENDERS=90
+log $NODES series7b
 
 #c
 wb build -b libp2p-test -n $NODES -m 0 -c 0 -y -o"senders=$SENDERS" -o"payloadSize=$SIZE" -o"connections=$CONNS" -o"interval=$INTERVAL"
+wb netconfig all -d 500
 
 wait_for_results
 
-log $NODES series3c
+log $NODES series7c
+
+#Series 8: Packet Loss
+
+#a
+wb build -b libp2p-test -n $NODES -m 0 -c 0 -y -o"senders=$SENDERS" -o"payloadSize=$SIZE" -o"connections=$CONNS" -o"interval=$INTERVAL"
+wb netconfig all -l 0.01
+
+wait_for_results
+
+log $NODES series8a
+
+#b
+wb build -b libp2p-test -n $NODES -m 0 -c 0 -y -o"senders=$SENDERS" -o"payloadSize=$SIZE" -o"connections=$CONNS" -o"interval=$INTERVAL"
+wb netconfig all -l 0.1
+
+wait_for_results
+
+log $NODES series8b
+
+#c
+wb build -b libp2p-test -n $NODES -m 0 -c 0 -y -o"senders=$SENDERS" -o"payloadSize=$SIZE" -o"connections=$CONNS" -o"interval=$INTERVAL"
+wb netconfig all -l 1
+
+wait_for_results
+
+log $NODES series8c
