@@ -27,6 +27,7 @@ wb build -b libp2p-test -n $NODES -m 0 -c 0 -y -o"senders=$SENDERS" -o"payloadSi
 wb netconfig all -b 50mb
 
 wait_for_results
+wb netconfig off
 
 log $NODES series6a
 
@@ -35,6 +36,7 @@ wb build -b libp2p-test -n $NODES -m 0 -c 0 -y -o"senders=$SENDERS" -o"payloadSi
 wb netconfig all -b 250mb
 
 wait_for_results
+wb netconfig off
 
 log $NODES series6b
 
@@ -43,6 +45,7 @@ wb build -b libp2p-test -n $NODES -m 0 -c 0 -y -o"senders=$SENDERS" -o"payloadSi
 wb netconfig all -b 750mb
 
 wait_for_results
+wb netconfig off
 
 log $NODES series6c
 
@@ -54,6 +57,7 @@ wb build -b libp2p-test -n $NODES -m 0 -c 0 -y -o"senders=$SENDERS" -o"payloadSi
 wb netconfig all -d 10
 
 wait_for_results
+wb netconfig off
 
 log $NODES series7a
 
@@ -62,6 +66,7 @@ wb build -b libp2p-test -n $NODES -m 0 -c 0 -y -o"senders=$SENDERS" -o"payloadSi
 wb netconfig all -d 100
 
 wait_for_results
+wb netconfig off
 
 log $NODES series7b
 
@@ -70,6 +75,7 @@ wb build -b libp2p-test -n $NODES -m 0 -c 0 -y -o"senders=$SENDERS" -o"payloadSi
 wb netconfig all -d 500
 
 wait_for_results
+wb netconfig off
 
 log $NODES series7c
 
@@ -80,6 +86,7 @@ wb build -b libp2p-test -n $NODES -m 0 -c 0 -y -o"senders=$SENDERS" -o"payloadSi
 wb netconfig all -l 0.01
 
 wait_for_results
+wb netconfig off
 
 log $NODES series8a
 
@@ -88,6 +95,7 @@ wb build -b libp2p-test -n $NODES -m 0 -c 0 -y -o"senders=$SENDERS" -o"payloadSi
 wb netconfig all -l 0.1
 
 wait_for_results
+wb netconfig off
 
 log $NODES series8b
 
@@ -96,5 +104,6 @@ wb build -b libp2p-test -n $NODES -m 0 -c 0 -y -o"senders=$SENDERS" -o"payloadSi
 wb netconfig all -l 1
 
 wait_for_results
+wb netconfig off
 
 log $NODES series8c
