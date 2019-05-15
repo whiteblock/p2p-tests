@@ -20,6 +20,7 @@ NODES=100
 SIZE=200
 CONNS=10
 INTERVAL=7812
+psr="floodsub"
 
 #SERIES6: bandwidth
 #a
