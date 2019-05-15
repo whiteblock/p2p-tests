@@ -47,13 +47,19 @@ Per test case:
 8. Parsed data is pushed to appropriate repo
 9. Reset environment
 
-## Performance Metrics
+## Message Struct
 
-| Value | Description | 
-| -------- | -------- | 
-| Subscription Time | The length of time it takes for a node to subscribe to a topic, or in otherwords, join a shard, and begin receiving and broadcasting messages pertaining to that topic. |
-| Discovery Time | The length of time it takes for a node to become aware of its peers within their subscribed shard. | 
-| Message Propagation Time | (Broadcast time) The length of time it takes for a message, once broadcast, to be received by a majority (99%) of peers within the shard.|
+The message struct defines the data which is written to the node's log. These logs are aggregated at runtime to be parsed after each test series is complete. The included data is as follows:
+
+* Timestamp of message received
+* Message type 
+* Message origin (sender)
+* Message destination (receiver)
+* Last relaying node (node that sent to you)
+* Message value 
+* Message nonce (chronology of the sent message)
+* Message size 
+* MessageID - unique string associated with that message
 
 ## Performance Tests
 
@@ -68,7 +74,6 @@ It is important to note that each test series may yield unexpected results which
 | Total Nodes      | 100         | 100         | 100         |
 | Tx Nodes         | 50          | 50          | 50          |
 | Rx Nodes         | 50          | 50          | 50          |
-| Static Nodes     | 0           | 0           | 0           |
 | Peers/Node       | 10          | 10          | 10          |
 | Message Size     | 200B        | 200B        | 200B        |
 | Bandwidth        | 1Gb         | 1Gb         | 1Gb         |
@@ -82,7 +87,6 @@ It is important to note that each test series may yield unexpected results which
 | Total Nodes      | 100         | 100         | 100         |
 | Tx Nodes         | 50          | 50          | 50          |
 | Rx Nodes         | 50          | 50          | 50          |
-| Static Nodes     | 0           | 0           | 0           |
 | Peers/Node       | 10          | 10          | 10          |
 | Message Size     | 500B        | 500KB       | 1MB         |
 | Bandwidth        | 1Gb         | 1Gb         | 1Gb         |
@@ -97,7 +101,6 @@ It is important to note that each test series may yield unexpected results which
 | Total Nodes      | 100         | 100         | 100         |
 | Tx Nodes         | 10          | 40          | 90          |
 | Rx Nodes         | 90          | 60          | 10          |
-| Static Nodes     | 0           | 0           | 0           |
 | Peers/Node       | 10          | 10          | 10          |
 | Message Size     | 200B        | 200B        | 200B        |
 | Bandwidth        | 1Gb         | 1Gb         | 1Gb         |
@@ -111,7 +114,6 @@ It is important to note that each test series may yield unexpected results which
 | Total Nodes      | 100         | 100         | 100         |
 | Tx Nodes         | 10          | 30          | 40          |
 | Rx Nodes         | 10          | 30          | 40          |
-| Static Nodes     | 80          | 40          | 20          |
 | Peers/Node       | 10          | 10          | 10          |
 | Message Size     | 200B        | 200B        | 200B        |
 | Bandwidth        | 1Gb         | 1Gb         | 1Gb         |
@@ -126,7 +128,6 @@ It is important to note that each test series may yield unexpected results which
 | Total Nodes      | 20          | 40          | 80          |
 | Tx Nodes         | 100         | 100         | 100         |
 | Rx Nodes         | 100         | 100         | 100         |
-| Static Nodes     | 0           | 0           | 0           |
 | Peers/Node       | 10          | 10          | 10          |
 | Message Size     | 200B        | 200B        | 200B        |
 | Bandwidth        | 1Gb         | 1Gb         | 1Gb         |
@@ -141,7 +142,6 @@ It is important to note that each test series may yield unexpected results which
 | Total Nodes      | 100         | 100         | 100         |
 | Tx Nodes         | 50          | 50          | 50          |
 | Rx Nodes         | 50          | 50          | 50          |
-| Static Nodes     | 0           | 0           | 0           |
 | Peers/Node       | 10          | 10          | 10          |
 | Message Size     | 200B        | 200B        | 200B        |
 | Bandwidth        | 50Mb        | 250Mb       | 750Mb       |
@@ -156,7 +156,6 @@ It is important to note that each test series may yield unexpected results which
 | Total Nodes      | 100         | 100         | 100         |
 | Tx Nodes         | 50          | 50          | 50          |
 | Rx Nodes         | 50          | 50          | 50          |
-| Static Nodes     | 0           | 0           | 0           |
 | Peers/Node       | 10          | 10          | 10          |
 | Message Size     | 200B        | 200B        | 200B        |
 | Bandwidth        | 1Gb         | 1Gb         | 1Gb         |
@@ -170,7 +169,6 @@ It is important to note that each test series may yield unexpected results which
 | Total Nodes      | 100         | 100         | 100         |
 | Tx Nodes         | 50          | 50          | 50          |
 | Rx Nodes         | 50          | 50          | 50          |
-| Static Nodes     | 0           | 0           | 0           |
 | Peers/Node       | 10          | 10          | 10          |
 | Message Size     | 200B        | 200B        | 200B        |
 | Bandwidth        | 1Gb         | 1Gb         | 1Gb         |
