@@ -7,7 +7,7 @@ The following tests are designed to observe and measure the performance of vario
 
     * Gossipsub (libp2p)
     * Floodsub (libp2p)
-    * Plumtree (Artemis)
+    * Plumtree (Apache Tuweni)
 
 This work began in early 2018 in collaboration with between Whiteblock and the [ETH Research team](https://github.com/ethresearch/sharding-p2p-poc).
 
