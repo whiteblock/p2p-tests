@@ -1,8 +1,8 @@
 FROM golang:1.12.3-stretch
 
-ADD ./client/ /libp2p
+ADD ./client/ /p2p-tests
 
-WORKDIR /libp2p
+WORKDIR /p2p-tests
 
 RUN go get || true
 
