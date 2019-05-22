@@ -1,6 +1,6 @@
 FROM golang:1.12.3-stretch
 
-ADD . /libp2p
+ADD ./client/ /libp2p
 
 WORKDIR /libp2p
 
