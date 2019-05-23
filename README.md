@@ -175,6 +175,21 @@ It is important to note that each test series may yield unexpected results which
 | Network Latency  | 0ms         | 0ms         | 0ms         |
 | Packet Loss      | 0.01%       | 0.1%        | 1%          |
 
+### Series 9: Stress Test
+
+| Variable         | Test Case A | Test Case B | Test Case C |
+|------------------|------------:|------------:|------------:|
+| Total Nodes      | 100         | 100         | 100         |
+| Tx Nodes         | 50          | 50          | 50          |
+| Rx Nodes         | 50          | 50          | 50          |
+| Peers/Node       | 10          | 10          | 10          |
+| Message Size     | 200B        | 200B        | 200B        |
+| Bandwidth        | 10MB        | 10MB        | 10MB        |
+| Network Latency  | 150ms       | 150ms       | 150ms       |
+| Packet Loss      | 0.1%        | 0.1%        | 0.1%        |
+
+
+
 ## Future Test Scenarios
 
 * Observe and measure performance under the presence of various network conditions.
