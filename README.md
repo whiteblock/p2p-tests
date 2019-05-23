@@ -107,35 +107,8 @@ It is important to note that each test series may yield unexpected results which
 | Network Latency  | 0ms         | 0ms         | 0ms         |
 | Packet Loss      | 0%          | 0%          | 0%          |
 
-### Series 4: Static Nodes
 
-| Variable         | Test Case A | Test Case B | Test Case C |
-|------------------|------------:|------------:|------------:|
-| Total Nodes      | 100         | 100         | 100         |
-| Tx Nodes         | 10          | 30          | 40          |
-| Rx Nodes         | 10          | 30          | 40          |
-| Peers/Node       | 10          | 10          | 10          |
-| Message Size     | 200B        | 200B        | 200B        |
-| Bandwidth        | 1Gb         | 1Gb         | 1Gb         |
-| Network Latency  | 0ms         | 0ms         | 0ms         |
-| Packet Loss      | 0%          | 0%          | 0%          |
-
-
-### Series 5: Total Nodes
-
-| Variable         | Test Case A | Test Case B | Test Case C |
-|------------------|------------:|------------:|------------:|
-| Total Nodes      | 20          | 40          | 80          |
-| Tx Nodes         | 100         | 100         | 100         |
-| Rx Nodes         | 100         | 100         | 100         |
-| Peers/Node       | 10          | 10          | 10          |
-| Message Size     | 200B        | 200B        | 200B        |
-| Bandwidth        | 1Gb         | 1Gb         | 1Gb         |
-| Network Latency  | 0ms         | 0ms         | 0ms         |
-| Packet Loss      | 0%          | 0%          | 0%          |
-
-
-### Series 6: Bandwidth
+### Series 4: Bandwidth
 
 | Variable         | Test Case A | Test Case B | Test Case C |
 |------------------|------------:|------------:|------------:|
@@ -149,7 +122,7 @@ It is important to note that each test series may yield unexpected results which
 | Packet Loss      | 0%          | 0%          | 0%          |
 
 
-### Series 7: Network Latency
+### Series 5: Network Latency
 
 | Variable         | Test Case A | Test Case B | Test Case C |
 |------------------|------------:|------------:|------------:|
@@ -162,7 +135,7 @@ It is important to note that each test series may yield unexpected results which
 | Network Latency  | 10ms        | 100ms       | 500ms       |
 | Packet Loss      | 0%          | 0%          | 0%          |
 
-### Series 8: Packet Loss
+### Series 6: Packet Loss
 
 | Variable         | Test Case A | Test Case B | Test Case C |
 |------------------|------------:|------------:|------------:|
@@ -175,7 +148,7 @@ It is important to note that each test series may yield unexpected results which
 | Network Latency  | 0ms         | 0ms         | 0ms         |
 | Packet Loss      | 0.01%       | 0.1%        | 1%          |
 
-### Series 9: Stress Test
+### Series 7: Stress Test
 
 | Variable         | Test Case A | Test Case B | Test Case C |
 |------------------|------------:|------------:|------------:|
