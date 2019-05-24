@@ -11,6 +11,6 @@ RUN go get || true
 
 RUN go build
 
-RUN apt-get update && apt-get install -y valgrind
+RUN apt-get update && apt-get install -y valgrind openssh-server iperf3 iputils-ping vim
 
 ENTRYPOINT ["/bin/bash"]
