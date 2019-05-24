@@ -17,3 +17,4 @@ p2p-tests
 # Dependency directories (remove the comment below to include it)
 # vendor/
 
+/client/client
