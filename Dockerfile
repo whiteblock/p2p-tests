@@ -1,6 +1,7 @@
-FROM golang:1.12.3-stretch
+FROM golang:1.12.5-stretch
 
 ENV DEBIAN_FRONTEND noninteractive
+ENV GO111MODULE on
 
 ADD ./client/ /p2p-tests
 
