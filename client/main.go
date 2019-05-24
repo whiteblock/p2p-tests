@@ -1,30 +1,31 @@
 package main
 
 import (
-	"io"
-	"os"
 	"fmt"
-	"log"
 	"github.com/spf13/pflag"
+	"io"
 	"io/ioutil"
-	//"net/rpc"
-	"strings"
+	"log"
+	"net/http"
+	"os"
 	"crypto/rand"
-	mrand "math/rand"
 	"encoding/hex"
 	"encoding/json"
-	"time"
 	"github.com/libp2p/go-libp2p"
+	"github.com/sirupsen/logrus"
 	"github.com/whiteblock/go.uuid"
-	logrus "github.com/sirupsen/logrus"
+	mrand "math/rand"
+	//"net/rpc"
+	"strings"
+	"time"
+	relay "github.com/libp2p/go-libp2p-circuit"
+	connmgr "github.com/libp2p/go-libp2p-connmgr"
+	crypto "github.com/libp2p/go-libp2p-crypto"
+	c "github.com/libp2p/go-libp2p-daemon/p2pclient"
+	"github.com/libp2p/go-libp2p/p2p/protocol/identify"
 	//tmpps "github.com/libp2p/go-libp2p-peerstore/pstoremem"
 	//man "github.com/multiformats/go-multiaddr-net"
 	ma "github.com/multiformats/go-multiaddr"
-	relay "github.com/libp2p/go-libp2p-circuit"
-	crypto "github.com/libp2p/go-libp2p-crypto"
-	connmgr "github.com/libp2p/go-libp2p-connmgr"
-	c "github.com/libp2p/go-libp2p-daemon/p2pclient"
-	"github.com/libp2p/go-libp2p/p2p/protocol/identify"
 )
 
 var (
@@ -43,6 +44,10 @@ func GetUUIDString() (string, error) {
 }
 
 func main() {
+	go func() {
+		log.Println(http.ListenAndServe("localhost:6060", nil))
+	}()
+
 	var generateOnly bool
 
 	log.SetFlags(log.LstdFlags | log.Llongfile)
