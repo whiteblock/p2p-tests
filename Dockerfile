@@ -10,6 +10,6 @@ RUN go get || true
 
 RUN go build
 
-RUN apt-get install -y valgrind
+RUN apt-get update && apt-get install -y valgrind
 
 ENTRYPOINT ["/bin/bash"]
