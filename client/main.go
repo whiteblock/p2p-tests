@@ -217,7 +217,7 @@ func main() {
 			if err != nil {
 				logrus.WithFields(logrus.Fields{"data":msg.Data}).Panic("malformed messages")
 			}
-			delete(data,"payload")
+			data["payload"] = nil
 			logrus.WithFields(logrus.Fields{
 				"from":hex.EncodeToString(msg.From),
 				"data":data,
