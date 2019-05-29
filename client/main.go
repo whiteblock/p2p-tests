@@ -212,16 +212,12 @@ func main() {
 	go func() {
 		for{
 			msg := <- dch
-			var data interface{}
+			var data map[string]interface{}
 			err := json.Unmarshal([]byte(msg.Data),&data)
 			if err != nil {
-				data = string(msg.Data)
-			}else{
-				_,ok := data.(map[string]interface{})["payload"]
-				if ok {
-					data.(map[string]interface{})["payload"] = ""
-				}
+				logrus.WithFields(logrus.Fields{"data":msg.Data}).Panic("malformed messages")
 			}
+			delete(data,"id")
 			logrus.WithFields(logrus.Fields{
 				"from":hex.EncodeToString(msg.From),
 				"data":data,
