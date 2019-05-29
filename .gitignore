@@ -7,7 +7,7 @@ gossipsub/gossipsub
 *.so
 *.dylib
 p2p-tests
-
+.ipynb_checkpoints
 # Test binary, built with `go test -c`
 *.test
 
