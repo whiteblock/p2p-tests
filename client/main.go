@@ -258,7 +258,7 @@ func main() {
 				"payload":additionalPayload,
 			}
 			out,err := json.Marshal(obj)
-
+			obj["payload"] = nil
 			logrus.WithFields(logrus.Fields{
 					"sending":obj,
 					"error":err,
