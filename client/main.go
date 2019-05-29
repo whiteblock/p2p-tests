@@ -216,6 +216,11 @@ func main() {
 			err := json.Unmarshal([]byte(msg.Data),&data)
 			if err != nil {
 				data = string(msg.Data)
+			}else{
+				_,ok := data.(map[string]interface{})["payload"]
+				if ok {
+					data.(map[string]interface{})["payload"] = ""
+				}
 			}
 			logrus.WithFields(logrus.Fields{
 				"from":hex.EncodeToString(msg.From),
