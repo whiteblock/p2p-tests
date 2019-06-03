@@ -51,11 +51,14 @@ e := 0
 ```
 
 
-This algorithm is designed to provide 3 guarantees. The first is that there will exist a path between all nodes in the network, so that no nodes are isolated from the network. 
-The second is bootstrap safety in order to reduce the propability of race conditions. Given that all of the nodes start up in order, a node will not have a peer inside of its 
-peer list which hasn’t yet been bootstrapped within the network. The third is that a node will not peer with itself. Within these constraints, it will attempt to fill its peer 
-list up to the given value for _c_ – first using the previous node and then using a random peer which meets the requirements. It is worth noting that nodes with an index <_c_ 
-will not have a peer list of size _c_, as the pool of peers they can choose from is smaller than _c_.
+This algorithm is designed to provide 3 guarantees. 
+
+1) There will exist a path between all nodes in the network, so that no nodes are isolated from the network. 
+2) Bootstrap safety in order to reduce the propability of race conditions. Given that all of the nodes start up in order, a node will not have a peer inside of its 
+peer list which hasn’t yet been bootstrapped within the network. 
+3) A node will not peer with itself. Within these constraints, it will attempt to fill its peer list to the given value for _c_ – first using the previous node 
+and then using a random peer which meets the requirements. It is worth noting that nodes with an index <_c_ will not have a peer list of size _c_, as the pool of 
+peers they can choose from is smaller than _c_.
 
 ## Client Behavior
 Nodes within the network will be running the client application included within this repo. This client application is responsible for constructing or relaying messages, interpreting these messages, outputting this data to a log in accordance with the defined message struct, and then relaying those messages according to the rules defined by the pusub router (floodsub, gossipsub)
